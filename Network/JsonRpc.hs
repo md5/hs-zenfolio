@@ -18,7 +18,7 @@ import qualified Data.ByteString.UTF8 as U
 import qualified Data.ByteString as BS
 import Data.Char
 import Data.Maybe
-import Network.HTTP hiding (Request, Response)
+import Network.HTTP hiding (Request, Response, defaultUserAgent)
 import qualified Network.HTTP as H
 import Network.Stream
 import Network.URI
@@ -31,8 +31,9 @@ import Network.JsonRpc.Request
 import Network.JsonRpc.Response
 
 handleResponse :: Monad m => Response -> m JSValue
-handleResponse (Rsp (Just v) _ _)   = return v
+handleResponse (Rsp (Just v) _ _)              = return v
 handleResponse (Rsp _ (Just (Err msg code)) _) = fail ("Error " ++ show msg ++ ": " ++ show code)
+handleResponse (Rsp _ _ _)                     = fail "Unknown error"
 
 type MethodName = String
 
