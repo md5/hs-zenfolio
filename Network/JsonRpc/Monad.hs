@@ -1,45 +1,93 @@
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+
 module Network.JsonRpc.Monad where
 
+import Control.Exception
+import Control.OldException (ioErrors) -- XXX
+import Control.Monad.Error
 import Control.Monad.Reader
+import Control.Monad.Trans
 import qualified Network.HTTP as H
 import Network.URI
+import Text.JSON
 
-import Network.JsonRpc.Internals
+import Network.JsonRpc.Request
+import Network.JsonRpc.Response
 
-withEnv :: (RpcEnv -> RpcEnv) -> RpcM m a -> RpcM m a
-withEnv fenv = withRpcM fenv
+data RpcEnv = RpcEnv {
+        rpcBaseUri   :: URI,
+        rpcUserAgent :: Maybe String,
+        rpcHeaders   :: [H.Header],
+        rpcDebug     :: Bool
+    }
 
-getEnv :: Monad m => RpcM m RpcEnv
-getEnv = RpcM $ \env -> return env
+rpcEnv :: URI -> RpcEnv
+rpcEnv baseUri = RpcEnv {
+    rpcBaseUri   = baseUri,
+    rpcUserAgent = Nothing,
+    rpcHeaders   = [],
+    rpcDebug     = True
+}
 
-withBaseUri :: URI -> RpcM m a -> RpcM m a
-withBaseUri u = withEnv $ \env -> env { rpcBaseUri = Just u }
+newtype RpcAction m a = RpcA {
+        unA :: ReaderT RpcEnv m a
+    } deriving (Monad, MonadIO, MonadReader RpcEnv, MonadTrans)
 
-getBaseUri :: Monad m => RpcM m (Maybe URI)
-getBaseUri = getEnv >>= return . rpcBaseUri
+rpcAction :: Monad m => (RpcEnv -> m a) -> RpcAction m a
+rpcAction = RpcA . ReaderT
 
-withUserAgent :: String -> RpcM m a -> RpcM m a
-withUserAgent ua = withEnv $ \env -> env { rpcUserAgent = Just ua }
+runRpc :: Monad m => RpcAction m a -> RpcEnv -> m a
+runRpc = runReaderT . unA
 
-getUserAgent :: Monad m => RpcM m (Maybe String)
-getUserAgent = getEnv >>= return . rpcUserAgent
+type Err m a = ErrorT String m a
 
-withHeaders :: [H.Header] -> RpcM m a -> RpcM m a
-withHeaders hs = withEnv $ \env -> env { rpcHeaders = hs }
+jsonErrorToErr :: (JSON a, Monad m) => Result a -> Err m a
+jsonErrorToErr = ErrorT . liftM resultToEither . return
 
-withExtraHeaders :: [H.Header] -> RpcM m a -> RpcM m a
-withExtraHeaders hs = withEnv $ \env -> env { rpcHeaders = rpcHeaders env ++ hs }
+-- | Catch IO errors in the error monad.
+ioErrorToErr :: IO a -> Err IO a
+ioErrorToErr = ErrorT . liftM (either (Left . show) Right) . tryJust ioErrors
 
-getHeaders :: Monad m => RpcM m [H.Header]
-getHeaders = getEnv >>= return . rpcHeaders
+-- | Handle errors from the error monad.
+handleError :: Monad m => (String -> m a) -> Err m a -> m a
+handleError h m = do 
+		  Right x <- runErrorT (catchError m (lift . h))
+		  return x
 
-newtype RpcM m a = RpcM { runRpcM :: RpcEnv -> Err m a }
+parseResponse :: Monad m => String -> Err m Response
+parseResponse = jsonErrorToErr . decodeStrict
 
-instance Monad m => Monad (RpcM m) where
-    return x = RpcM $ \_   -> return x
-    m >>= k  = RpcM $ \env -> do
-        v <- runRpcM m env
-        runRpcM (k v) env
+renderCall :: Request -> String
+renderCall = encodeStrict . showJSON
 
-withRpcM :: (RpcEnv -> RpcEnv) -> RpcM m a -> RpcM m a
-withRpcM f m = RpcM $ runRpcM m . f
+withBaseUri :: Monad m => URI -> RpcAction m a -> RpcAction m a
+withBaseUri u = local $ \env -> env { rpcBaseUri = u }
+
+getBaseUri :: Monad m => RpcAction m URI
+getBaseUri = asks rpcBaseUri
+
+withUserAgent :: Monad m => String -> RpcAction m a -> RpcAction m a
+withUserAgent ua = local $ \env -> env { rpcUserAgent = Just ua }
+
+getUserAgent :: Monad m => RpcAction m (Maybe String)
+getUserAgent = asks rpcUserAgent
+
+withHeaders :: Monad m => [H.Header] -> RpcAction m a -> RpcAction m a
+withHeaders hs = local $ \env -> env { rpcHeaders = hs }
+
+withExtraHeaders :: Monad m => [H.Header] -> RpcAction m a -> RpcAction m a
+withExtraHeaders hs = local $ \env -> env { rpcHeaders = rpcHeaders env ++ hs }
+
+getHeaders :: Monad m => RpcAction m [H.Header]
+getHeaders = asks rpcHeaders
+
+withDebug :: Monad m => Bool -> RpcAction m a -> RpcAction m a
+withDebug dbg = local $ \env -> env { rpcDebug = dbg }
+
+getDebug :: Monad m => RpcAction m Bool
+getDebug = asks rpcDebug
+
+debug :: MonadIO m => String -> RpcAction m ()
+debug msg = do
+    dbg <- getDebug
+    when dbg (liftIO $ putStrLn msg)

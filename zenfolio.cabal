@@ -23,7 +23,6 @@ flag old-base
 library
  Exposed-modules: Network.JsonRpc,
                   Network.JsonRpc.Error,
-                  Network.JsonRpc.Internals,
                   Network.JsonRpc.Monad,
                   Network.JsonRpc.Request,
                   Network.JsonRpc.Response,
@@ -37,7 +36,7 @@ library
 
  Ghc-Options:     -Wall
 
- build-depends: HTTP, network, utf8-string, json, bytestring, mtl
+ build-depends: HTTP, network, utf8-string, json, bytestring, mtl, time, old-locale
  if flag(old-base)
    Build-Depends: base < 3
  else
