@@ -29,14 +29,17 @@ library
                   Network.JsonRpc.Utils,
                   Web.Zenfolio.API,
                   Web.Zenfolio.Auth,
+                  Web.Zenfolio.Groups,
                   Web.Zenfolio.Monad,
+                  Web.Zenfolio.PhotoSets,
                   Web.Zenfolio.Types,
                   Web.Zenfolio.Types.JSON,
+                  Web.Zenfolio.Users,
                   Web.Zenfolio.Utils
 
  Ghc-Options:     -Wall
 
- build-depends: HTTP, network, utf8-string, json, bytestring, mtl, time, old-locale
+ build-depends: HTTP, network, utf8-string, json, bytestring, mtl, time, old-locale, Crypto
  if flag(old-base)
    Build-Depends: base < 3
  else

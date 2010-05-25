@@ -1,4 +1,4 @@
-{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE FlexibleInstances, FlexibleContexts #-}
 
 module Network.JsonRpc (
     Error(..),
@@ -13,6 +13,7 @@ module Network.JsonRpc (
 ) where
 
 import Control.Monad (when)
+import Control.Monad.Reader
 import Control.Monad.Trans (lift)
 import qualified Data.ByteString.UTF8 as U
 import qualified Data.ByteString as BS
@@ -60,16 +61,19 @@ remote :: Remote a =>
           RpcEnv
        -> MethodName
        -> a
-remote env m = remote_ (\e -> "Error calling " ++ m ++ ": " ++ e) (call env m)
+remote env method = remote_ (\err -> "Error calling " ++ method ++ ": " ++ err)
+                            (call env method)
 
 class Remote a where
     remote_ :: (String -> String)
             -> ([JSValue] -> Err IO JSValue)
             -> a
 
+instance JSON a => Remote (IO a) where
+    remote_ h f = handleError (fail . h) $ f [] >>= jsonErrorToErr . readJSON
+
 instance JSON a => Remote (RpcAction IO a) where
-    remote_ h f = rpcAction $ \_ ->
-        handleError (fail . h) $ f [] >>= jsonErrorToErr . readJSON
+    remote_ h f = liftIO (remote_ h f)
 
 instance (JSON a, Remote r) => Remote (a -> r) where
     remote_ h f x = remote_ h (\xs -> f (showJSON x : xs))
