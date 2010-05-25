@@ -5,7 +5,6 @@ module Web.Zenfolio.Groups (
 import Control.Monad.Reader (ask)
 import Network.JsonRpc (RpcAction, remote)
 import Web.Zenfolio.Types (Group, LoginName)
-import Web.Zenfolio.Types.JSON ()
 
 loadGroupHierarchy :: LoginName -> RpcAction IO Group
 loadGroupHierarchy login = do

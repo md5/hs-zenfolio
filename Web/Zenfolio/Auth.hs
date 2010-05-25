@@ -6,11 +6,10 @@ module Web.Zenfolio.Auth (
 ) where
 
 import Control.Monad.Reader (ask)
-import qualified Data.Digest.SHA256 as SHA256
+import qualified Data.Digest.SHA256 as SHA256 (hash)
 import Data.String.UTF8 (fromString, toRep)
-import Network.JsonRpc
-import Web.Zenfolio.Types
-import Web.Zenfolio.Types.JSON
+import Network.JsonRpc (RpcAction, remote)
+import Web.Zenfolio.Types (LoginName, AuthChallenge(..), Password, AuthToken)
 
 getChallenge :: LoginName -> RpcAction IO AuthChallenge
 getChallenge login = do

@@ -6,7 +6,6 @@ module Web.Zenfolio.Users (
 import Control.Monad.Reader (ask)
 import Network.JsonRpc (RpcAction, remote)
 import Web.Zenfolio.Types (User, LoginName)
-import Web.Zenfolio.Types.JSON ()
 
 loadPrivateProfile :: RpcAction IO User
 loadPrivateProfile = do

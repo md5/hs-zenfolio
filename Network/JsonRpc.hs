@@ -12,7 +12,6 @@ module Network.JsonRpc (
     remote
 ) where
 
-import Control.Monad (when)
 import Control.Monad.Reader
 import Control.Monad.Trans (lift)
 import qualified Data.ByteString.UTF8 as U

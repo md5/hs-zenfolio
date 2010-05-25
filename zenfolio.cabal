@@ -33,7 +33,6 @@ library
                   Web.Zenfolio.Monad,
                   Web.Zenfolio.PhotoSets,
                   Web.Zenfolio.Types,
-                  Web.Zenfolio.Types.JSON,
                   Web.Zenfolio.Users,
                   Web.Zenfolio.Utils
 
