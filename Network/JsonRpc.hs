@@ -42,16 +42,22 @@ handleResponse (Rsp _ _ _)                     = fail "Unknown error"
 
 type MethodName = String
 
-doCall :: URI -> [H.Header] -> Request -> Err IO Response
-doCall uri headers req = do
+doCall :: RpcEnv -> URI -> [H.Header] -> Request -> Err IO Response
+doCall env uri headers req = do
     let reqStr = renderCall req
+    when (rpcDebug env) $ do
+        liftIO (putStrLn $ "Headers: " ++ show headers)
+        liftIO (putStrLn $ "Request: " ++ reqStr)
     respStr <- ioErrorToErr (post uri headers reqStr)
+    when (rpcDebug env) $ do
+        liftIO (putStrLn $ "Response: " ++ respStr)
     parseResponse respStr
 
-call :: URI -> [H.Header] -> MethodName -> ([H.Header] -> [JSValue] -> Err IO JSValue)
-call uri initialHeaders method extraHeaders args = do
+call :: URI -> [H.Header] -> MethodName -> (RpcEnv -> [JSValue] -> Err IO JSValue)
+call uri initialHeaders method env args = do
+    let extraHeaders = rpcHeaders env
     requestId <- lift getRequestId
-    rpcResp <- doCall uri (initialHeaders ++ extraHeaders) (Req method args requestId)
+    rpcResp <- doCall env uri (initialHeaders ++ extraHeaders) (Req method args requestId)
     handleResponse rpcResp
     where getRequestId = getPOSIXTime >>= return . floor
 
@@ -73,24 +79,24 @@ simpleRemote uriStr method = let uri = fromMaybe (error $ "Invalid URI: " ++ uri
 
 class Remote a where
     remote_ :: (String -> String)
-            -> ([H.Header] -> [JSValue] -> Err IO JSValue)
+            -> (RpcEnv -> [JSValue] -> Err IO JSValue)
             -> a
 
 ioRemote_ :: JSON a =>
              (String -> String)
-          -> ([H.Header] -> [JSValue] -> Err IO JSValue)
-          -> [H.Header]
+          -> (RpcEnv -> [JSValue] -> Err IO JSValue)
+          -> RpcEnv
           -> IO a
 ioRemote_ h f headers = handleError (fail . h) $ f headers [] >>= jsonErrorToErr . readJSON
 
 instance JSON a => Remote (IO a) where
-    remote_ h f = ioRemote_ h f []
+    remote_ h f = ioRemote_ h f rpcEnv
 
 instance JSON a => Remote (RpcAction IO a) where
-    remote_ h f = getHeaders >>= liftIO . ioRemote_ h f
+    remote_ h f = ask >>= liftIO . ioRemote_ h f
 
 instance (JSON a, Remote r) => Remote (a -> r) where
-    remote_ h f x = remote_ h (\hs xs -> f hs (showJSON x : xs))
+    remote_ h f x = remote_ h (\env xs -> f env (showJSON x : xs))
 
 defaultUserAgent :: String
 defaultUserAgent = "Haskell JsonRpcClient/0.1"

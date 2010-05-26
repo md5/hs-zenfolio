@@ -420,13 +420,8 @@ instance JSON GroupElement where
     readJSON json = fail $ "Unexpected JSON GroupElement: " ++ show json
 
 instance JSON PhotoSetType where
-    showJSON setType = makeObj
-        [ ("$type", showJSON $ "PhotoSetType")
-        , ("Value", showJSON $ case setType of {
-                                   Gallery    -> "Gallery";
-                                   Collection -> "Collection";
-                               })
-        ]
+    showJSON Gallery    = showJSON "Gallery"
+    showJSON Collection = showJSON "Collection"
 
     readJSON (JSString str) =
         case fromJSString str of
