@@ -1,16 +1,18 @@
 {-# LANGUAGE FlexibleInstances, FlexibleContexts #-}
 
 module Network.JsonRpc (
-    Error(..),
-    Request(..),
-    Response(..),
-    Remote(),
-
     module Network.JsonRpc.Monad,
 
+    Remote(..),
     MethodName,
     remote,
-    simpleRemote
+    simpleRemote,
+    ioRemote_,
+
+    H.Header(..),
+    H.HeaderName(..),
+    module Text.JSON,
+    module Text.JSON.Types
 ) where
 
 import Control.Monad.Reader
@@ -25,7 +27,8 @@ import Network.HTTP hiding (Request, Response, defaultUserAgent, getHeaders)
 import qualified Network.HTTP as H
 import Network.Stream
 import Network.URI
-import Text.JSON
+import Text.JSON (JSON(..))
+import Text.JSON.Types (JSValue)
 
 import Network.JsonRpc.Error
 import Network.JsonRpc.Monad

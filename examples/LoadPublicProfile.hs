@@ -6,8 +6,8 @@ import System.Environment (getArgs, getProgName)
 import Web.Zenfolio.API
 import qualified Web.Zenfolio.Users as Users
 
-rpcMain :: String -> RpcAction IO ()
-rpcMain username = do
+dumpProfile :: String -> ZM ()
+dumpProfile username = do
     user <- Users.loadPublicProfile username
     liftIO $ do
         let ln = uLoginName user
@@ -22,5 +22,4 @@ main = do
         [] -> do
             prg <- getProgName
             putStrLn ("Usage: " ++ prg ++ " user-name")
-        (x:_) -> do
-            runRpc (rpcMain x) rpcEnv
+        (x:_) -> zenfolio $ dumpProfile x

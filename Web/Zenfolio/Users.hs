@@ -3,12 +3,12 @@ module Web.Zenfolio.Users (
     loadPublicProfile
 ) where
 
-import Network.JsonRpc (RpcAction)
+import Web.Zenfolio.Monad (ZM)
 import Web.Zenfolio.RPC (zfRemote)
 import Web.Zenfolio.Types (User, LoginName)
 
-loadPrivateProfile :: RpcAction IO User
+loadPrivateProfile :: ZM User
 loadPrivateProfile = zfRemote "LoadPrivateProfile"
 
-loadPublicProfile :: LoginName -> RpcAction IO User
+loadPublicProfile :: LoginName -> ZM User
 loadPublicProfile login = zfRemote "LoadPublicProfile" login

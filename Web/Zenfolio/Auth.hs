@@ -6,14 +6,14 @@ module Web.Zenfolio.Auth (
 
 import qualified Data.Digest.SHA256 as SHA256 (hash)
 import Data.String.UTF8 (fromString, toRep)
-import Network.JsonRpc (RpcAction)
+import Web.Zenfolio.Monad (ZM)
 import Web.Zenfolio.RPC (zfRemote)
 import Web.Zenfolio.Types (LoginName, AuthChallenge(..), Password, AuthToken)
 
-getChallenge :: LoginName -> RpcAction IO AuthChallenge
+getChallenge :: LoginName -> ZM AuthChallenge
 getChallenge loginName = zfRemote "GetChallenge" loginName
 
-authenticate :: AuthChallenge -> Password -> RpcAction IO AuthToken
+authenticate :: AuthChallenge -> Password -> ZM AuthToken
 authenticate challenge password = zfRemote "Authenticate" challengeBytes roundTwoBytes
     where saltBytes      = acPasswordSalt challenge
           challengeBytes = acChallenge challenge
@@ -21,7 +21,7 @@ authenticate challenge password = zfRemote "Authenticate" challengeBytes roundTw
           roundOneBytes  = SHA256.hash $ saltBytes      ++ passwordBytes
           roundTwoBytes  = SHA256.hash $ challengeBytes ++ roundOneBytes
 
-login :: LoginName -> Password -> RpcAction IO AuthToken
+login :: LoginName -> Password -> ZM AuthToken
 login username password = do
     challenge <- getChallenge username
     authenticate challenge password
