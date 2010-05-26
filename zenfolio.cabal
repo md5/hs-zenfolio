@@ -45,6 +45,11 @@ library
  else
    Build-Depends: base >= 4
 
+executable simpleJsonRpc {
+  main-is:              examples/SimpleJsonRpc.hs
+  ghc-options:          -Wall
+}
+
 executable loadPublicProfile {
   main-is:              examples/LoadPublicProfile.hs
   ghc-options:          -Wall
