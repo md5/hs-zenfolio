@@ -2,11 +2,9 @@ module Web.Zenfolio.PhotoSets (
     createPhotoSet
 ) where
 
-import Control.Monad.Reader (ask)
-import Network.JsonRpc (RpcAction, remote)
+import Network.JsonRpc (RpcAction)
+import Web.Zenfolio.RPC (zfRemote)
 import Web.Zenfolio.Types (GroupID, PhotoSetType, PhotoSetUpdater, PhotoSet)
 
 createPhotoSet :: GroupID -> PhotoSetType -> PhotoSetUpdater -> RpcAction IO PhotoSet
-createPhotoSet groupId setType updater = do
-    env <- ask
-    remote env "CreatePhotoSet" groupId setType updater
+createPhotoSet groupId setType updater = zfRemote "CreatePhotoSet" groupId setType updater

@@ -8,25 +8,20 @@ import Control.Monad.Error
 import Control.Monad.Reader
 import Control.Monad.Trans
 import qualified Network.HTTP as H
-import Network.URI
 import Text.JSON
 
 import Network.JsonRpc.Request
 import Network.JsonRpc.Response
 
 data RpcEnv = RpcEnv {
-        rpcBaseUri   :: URI,
-        rpcUserAgent :: Maybe String,
         rpcHeaders   :: [H.Header],
         rpcDebug     :: Bool
     }
 
-rpcEnv :: URI -> RpcEnv
-rpcEnv baseUri = RpcEnv {
-    rpcBaseUri   = baseUri,
-    rpcUserAgent = Nothing,
+rpcEnv :: RpcEnv
+rpcEnv = RpcEnv {
     rpcHeaders   = [],
-    rpcDebug     = True
+    rpcDebug     = False
 }
 
 newtype RpcAction m a = RpcA {
@@ -59,18 +54,6 @@ parseResponse = jsonErrorToErr . decodeStrict
 
 renderCall :: Request -> String
 renderCall = encodeStrict . showJSON
-
-withBaseUri :: Monad m => URI -> RpcAction m a -> RpcAction m a
-withBaseUri u = local $ \env -> env { rpcBaseUri = u }
-
-getBaseUri :: Monad m => RpcAction m URI
-getBaseUri = asks rpcBaseUri
-
-withUserAgent :: Monad m => String -> RpcAction m a -> RpcAction m a
-withUserAgent ua = local $ \env -> env { rpcUserAgent = Just ua }
-
-getUserAgent :: Monad m => RpcAction m (Maybe String)
-getUserAgent = asks rpcUserAgent
 
 withHeaders :: Monad m => [H.Header] -> RpcAction m a -> RpcAction m a
 withHeaders hs = local $ \env -> env { rpcHeaders = hs }

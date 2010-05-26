@@ -1,27 +1,27 @@
 module Web.Zenfolio.Auth (
     getChallenge,
     authenticate,
-
-    zfLogin
+    login
 ) where
 
-import Control.Monad.Reader (ask)
 import qualified Data.Digest.SHA256 as SHA256 (hash)
 import Data.String.UTF8 (fromString, toRep)
-import Network.JsonRpc (RpcAction, remote)
+import Network.JsonRpc (RpcAction)
+import Web.Zenfolio.RPC (zfRemote)
 import Web.Zenfolio.Types (LoginName, AuthChallenge(..), Password, AuthToken)
 
 getChallenge :: LoginName -> RpcAction IO AuthChallenge
-getChallenge login = do
-    env <- ask
-    remote env "GetChallenge" login
+getChallenge loginName = zfRemote "GetChallenge" loginName
 
 authenticate :: AuthChallenge -> Password -> RpcAction IO AuthToken
-authenticate challenge password = do
-    env <- ask
-    remote env "Authenticate" (acChallenge challenge) roundTwo
-    where roundOne = SHA256.hash $ acPasswordSalt challenge ++ toRep (fromString password)
-          roundTwo = SHA256.hash $ acChallenge challenge    ++ roundOne
+authenticate challenge password = zfRemote "Authenticate" challengeBytes roundTwoBytes
+    where saltBytes      = acPasswordSalt challenge
+          challengeBytes = acChallenge challenge
+          passwordBytes  = toRep $ fromString password
+          roundOneBytes  = SHA256.hash $ saltBytes      ++ passwordBytes
+          roundTwoBytes  = SHA256.hash $ challengeBytes ++ roundOneBytes
 
-zfLogin :: LoginName -> Password -> RpcAction IO AuthToken
-zfLogin username password = getChallenge username >>= flip authenticate password
+login :: LoginName -> Password -> RpcAction IO AuthToken
+login username password = do
+    challenge <- getChallenge username
+    authenticate challenge password

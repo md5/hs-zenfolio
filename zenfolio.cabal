@@ -32,6 +32,7 @@ library
                   Web.Zenfolio.Groups,
                   Web.Zenfolio.Monad,
                   Web.Zenfolio.PhotoSets,
+                  Web.Zenfolio.RPC,
                   Web.Zenfolio.Types,
                   Web.Zenfolio.Users,
                   Web.Zenfolio.Utils
@@ -43,3 +44,8 @@ library
    Build-Depends: base < 3
  else
    Build-Depends: base >= 4
+
+executable loadPublicProfile {
+  main-is:              examples/LoadPublicProfile.hs
+  ghc-options:          -Wall
+}
