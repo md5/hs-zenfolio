@@ -54,3 +54,8 @@ executable loadPublicProfile {
   main-is:              examples/LoadPublicProfile.hs
   ghc-options:          -Wall
 }
+
+executable loadPrivateProfile {
+  main-is:              examples/LoadPrivateProfile.hs
+  ghc-options:          -Wall
+}
