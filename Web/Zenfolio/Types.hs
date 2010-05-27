@@ -1,3 +1,5 @@
+{-# LANGUAGE DeriveDataTypeable #-}
+
 module Web.Zenfolio.Types (
     LoginName,
     Password,
@@ -19,12 +21,15 @@ module Web.Zenfolio.Types (
 ) where
 
 import Control.Applicative ((<*>), (<$>))
+import Data.Data (Data, Typeable)
+import Data.Maybe (catMaybes)
 import Data.Time.Format (formatTime, parseTime)
 import Data.Word (Word8)
 import Data.Time.LocalTime (LocalTime)
 import System.Locale (defaultTimeLocale)
 
-import Text.JSON (JSON(..), JSValue(..), fromJSString, makeObj)
+import Text.JSON (JSON(..), JSValue(..), makeObj)
+import Text.JSON.Generic (fromJSON, toJSON)
 import Web.Zenfolio.Utils
 
 type LoginName = String
@@ -98,7 +103,7 @@ data Address = Address {
     addrUrl         :: String,
     addrEmail       :: String,
     addrOther       :: String
-} deriving (Eq, Show)
+} deriving (Eq, Show, Typeable, Data)
 
 data File = File {
     fileId       :: FileID,
@@ -108,7 +113,7 @@ data File = File {
     fileMimeType :: String,
     fileHash     :: Maybe [Word8],
     fileUrlCore  :: String
-} deriving (Eq, Show)
+} deriving (Eq, Show, Typeable, Data)
 
 data Group = Group {
     groupCaption          :: Maybe String,
@@ -130,9 +135,8 @@ data Group = Group {
     groupHideBranding     :: Bool
 } deriving (Eq, Show)
 
-data GroupElement =
-    GroupElementGroup    Group |
-    GroupElementPhotoSet PhotoSet
+data GroupElement = GroupElementGroup    Group
+                  | GroupElementPhotoSet PhotoSet
     deriving (Eq, Show)
 
 type AccessType = String
@@ -147,9 +151,11 @@ data AccessDescriptor = AccessDescriptor {
     adViewers         :: [String],
     adPasswordHint    :: Maybe String,
     adSrcPasswordHint :: Maybe String
-} deriving (Eq, Show)
+} deriving (Eq, Show, Typeable, Data)
 
-data PhotoSetType = Gallery | Collection deriving (Eq, Show)
+data PhotoSetType = Gallery
+                  | Collection
+    deriving (Eq, Show, Typeable, Data)
 
 type PhotoSetKeyword = String
 
@@ -159,7 +165,7 @@ data PhotoSetUpdater = PhotoSetUpdater {
     psuKeywords        :: Maybe [PhotoSetKeyword],
     psuCategories      :: Maybe [CategoryID],
     psuCustomReference :: Maybe String
-} deriving (Eq, Show)
+} deriving (Eq, Show, Typeable, Data)
 
 data PhotoSet = PhotoSet {
     psCaption            :: Maybe String,
@@ -385,7 +391,7 @@ instance JSON Group where
 
 instance JSON AccessDescriptor where
     showJSON descriptor = makeObj
-        [ ("$type", showJSON $ "AccessDescriptor")
+        [ recTypeField descriptor
         , ("RealmId", showJSON $ adRealmId descriptor)
         , ("AccessType", showJSON $ adAccessType descriptor)
         , ("IsDerived", showJSON $ adIsDerived descriptor)
@@ -420,28 +426,17 @@ instance JSON GroupElement where
     readJSON json = fail $ "Unexpected JSON GroupElement: " ++ show json
 
 instance JSON PhotoSetType where
-    showJSON Gallery    = showJSON "Gallery"
-    showJSON Collection = showJSON "Collection"
-
-    readJSON (JSString str) =
-        case fromJSString str of
-            "Gallery"    -> return Gallery
-            "Collection" -> return Collection
-            _            -> fail $ "Unknown photo set type: " ++ show str
-
-    readJSON json = fail $ "Unexpected JSON PhotoSetType: " ++ show json
-
-mShowJSON :: JSON a => Maybe a -> JSValue
-mShowJSON = maybe JSNull showJSON
+    showJSON = toJSON
+    readJSON = fromJSON
 
 instance JSON PhotoSetUpdater where
-    showJSON updater = makeObj
-        [ ("$type", showJSON $ "PhotoSetUpdater")
-        , ("Title", mShowJSON $ psuTitle updater)
-        , ("Caption", mShowJSON $ psuCaption updater)
-        , ("Keywords", mShowJSON $ psuKeywords updater)
-        , ("Categories", mShowJSON $ psuCategories updater)
-        , ("CustomReference", mShowJSON $ psuCustomReference updater)
+    showJSON updater = makeObj $ catMaybes
+        [ Just (recTypeField updater)
+        , oJSONField "Title" $ psuTitle updater
+        , oJSONField "Caption" $ psuCaption updater
+        , oJSONField "Keywords" $ psuKeywords updater
+        , oJSONField "Categories" $ psuCategories updater
+        , oJSONField "CustomReference" $ psuCustomReference updater
         ]
 
     readJSON (JSObject obj) =
