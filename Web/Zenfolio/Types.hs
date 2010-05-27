@@ -285,8 +285,43 @@ instance JSON User where
     readJSON json = fail $ "Unexpected JSON for User: " ++ show json
 
 instance JSON Address where
-    showJSON = toJSON
-    readJSON = fromJSON
+    showJSON addr = makeObj
+        [ ("$type", showJSON $ "Address")
+        , ("FirstName", showJSON $ addrFirstName addr)
+        , ("LastName", showJSON $ addrLastName addr)
+        , ("CompanyName", showJSON $ addrCompanyName addr)
+        , ("Street", showJSON $ addrStreet addr)
+        , ("Street2", showJSON $ addrStreet2 addr)
+        , ("City", showJSON $ addrCity addr)
+        , ("Zip", showJSON $ addrZip addr)
+        , ("State", showJSON $ addrState addr)
+        , ("Country", showJSON $ addrCountry addr)
+        , ("Phone", showJSON $ addrPhone addr)
+        , ("Phone2", showJSON $ addrPhone2 addr)
+        , ("Fax", showJSON $ addrFax addr)
+        , ("Url", showJSON $ addrUrl addr)
+        , ("Email", showJSON $ addrEmail addr)
+        , ("Other", showJSON $ addrOther addr)
+        ]
+
+    readJSON (JSObject obj) =
+        Address <$> field "FirstName" obj
+                <*> field "LastName" obj
+                <*> field "CompanyName" obj
+                <*> field "Street" obj
+                <*> field "Street2" obj
+                <*> field "City" obj
+                <*> field "Zip" obj
+                <*> field "State" obj
+                <*> field "Country" obj
+                <*> field "Phone" obj
+                <*> field "Phone2" obj
+                <*> field "Fax" obj
+                <*> field "Url" obj
+                <*> field "Email" obj
+                <*> field "Other" obj
+
+    readJSON json = fail $ "Unexpected JSON for Address: " ++ show json
 
 instance JSON File where
     showJSON file = makeObj
