@@ -23,7 +23,7 @@ prompt :: String -> IO Password
 prompt message = do
     putStr message >> hFlush stdout
     bracket_ (hSetEcho stdin False)
-             (hSetEcho stdin True)
+             (hSetEcho stdin True >> putStrLn "")
              (getLine)
 
 main :: IO ()
