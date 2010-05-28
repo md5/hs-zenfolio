@@ -12,6 +12,9 @@ module Web.Zenfolio.Types (
     AuthToken,
     Owner,
 
+    AccessMask,
+    AccessMaskFlag(..),
+    AccessType(..),
     AuthChallenge(..),
     User(..),
     Group(..),
@@ -22,13 +25,14 @@ module Web.Zenfolio.Types (
 
 import Control.Applicative ((<*>), (<$>))
 import Data.Data (Data, Typeable)
+import Data.List (sort, nub, intercalate)
 import Data.Maybe (catMaybes)
 import Data.Time.Format (formatTime, parseTime)
 import Data.Word (Word8)
 import Data.Time.LocalTime (LocalTime)
 import System.Locale (defaultTimeLocale)
 
-import Text.JSON (JSON(..), JSValue(..), makeObj)
+import Text.JSON (JSON(..), JSValue(..), makeObj, fromJSString, toJSString)
 import Text.JSON.Generic (fromJSON, toJSON)
 import Web.Zenfolio.Utils
 
@@ -139,9 +143,52 @@ data GroupElement = GroupElementGroup    Group
                   | GroupElementPhotoSet PhotoSet
     deriving (Eq, Show)
 
-type AccessType = String
+data AccessType = Private
+                | Public
+                | UserList
+                | Password
+    deriving (Eq, Enum, Bounded, Read, Show, Typeable, Data)
 
-type AccessMask = String
+newtype AccessMask = AccessMask {
+    amFlags :: [AccessMaskFlag]
+} deriving (Eq, Read, Typeable, Data)
+
+instance Show AccessMask where
+    show (AccessMask flags) = show flags
+
+data AccessMaskFlag = None
+                    -- "Hide" flags
+                    | HideDateCreated
+                    | HideDateModified
+                    | HideDateTaken
+                    | HideMetaData
+                    | HideUserStats
+                    | HideVisits
+                    -- "No" flags
+                    | NoCollections
+                    | NoPrivateSearch
+                    | NoPublicSearch
+                    | NoRecentList
+                    -- "Protect" flags
+                    | ProtectExif
+                    | ProtectExtraLarge
+                    | ProtectLarge
+                    | ProtectMedium
+                    | ProtectOriginals
+                    -- Guestbook flags
+                    | ProtectGuestBook
+                    | NoPublicGuestbookPosts
+                    | NoPrivateGuestbookPosts
+                    | NoAnonymousGuestbookPosts
+                    -- Comment flags
+                    | ProtectComments
+                    | NoPublicComments
+                    | NoPrivateComments
+                    | NoAnonymousComments
+                    -- Other flags
+                    | PasswordProtectOriginals
+                    | ProtectAll
+    deriving (Eq, Ord, Enum, Bounded, Read, Show, Typeable, Data)
 
 data AccessDescriptor = AccessDescriptor {
     adRealmId         :: RealmID,
@@ -341,7 +388,7 @@ instance JSON File where
              <*> field "Height" obj
              <*> field "Sequence" obj
              <*> field "MimeType" obj
-             <*> mField "FileHash" obj
+             <*> oField "FileHash" obj
              <*> field "UrlCore" obj
 
     readJSON json = fail $ "Unexpected JSON for File: " ++ show json
@@ -411,6 +458,21 @@ instance JSON AccessDescriptor where
                          <*> mField "SrcPasswordHint" obj
 
     readJSON json = fail $ "Unexpected JSON AccessDescriptor: " ++ show json
+
+instance JSON AccessMask where
+    showJSON (AccessMask flags) = JSString $ toJSString flagStr
+        where flagStr = intercalate ", " $ map show (sort (nub flags))
+
+    readJSON (JSString s) =
+        AccessMask <$> return parseFlags
+        where parseFlags :: [AccessMaskFlag]
+              parseFlags = map (read . takeWhile (/= ',')) $ words (fromJSString s)
+
+    readJSON json = fail $ "Unexpected JSON AccessMask: " ++ show json
+
+instance JSON AccessType where
+    showJSON = toJSON
+    readJSON = fromJSON
 
 instance JSON GroupElement where
     showJSON (GroupElementGroup group)       = showJSON group

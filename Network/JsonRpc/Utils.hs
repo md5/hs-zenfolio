@@ -1,6 +1,7 @@
 module Network.JsonRpc.Utils (
     field,
     mField,
+    oField,
     lField,
 
     mShowJSON,
@@ -20,6 +21,14 @@ field k obj = maybe (fail $ "No such element: " ++ k)
 -- Nullable field with null translated to Nothing and value wrapped in Just
 mField :: JSON a => String -> JSObject JSValue -> Result (Maybe a)
 mField k obj = maybe (fail $ "No such element: " ++ k)
+                     (\val -> case val of
+                                   JSNull -> return Nothing
+                                   _      -> readJSON val >>= return . Just)
+                     (lookup k (fromJSObject obj))
+
+-- Nullable field with null or missing translated to Nothing and value wrapped in Just
+oField :: JSON a => String -> JSObject JSValue -> Result (Maybe a)
+oField k obj = maybe (return Nothing)
                      (\val -> case val of
                                    JSNull -> return Nothing
                                    _      -> readJSON val >>= return . Just)
