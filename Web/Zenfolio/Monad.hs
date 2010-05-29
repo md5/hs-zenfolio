@@ -3,6 +3,7 @@
 module Web.Zenfolio.Monad (
     ZM,
     zenfolio,
+    liftIO,
 
     getToken,
     withToken,
@@ -18,6 +19,7 @@ import Control.Monad.Trans (MonadIO, liftIO)
 import Network.JsonRpc (Remote(..), ioRemote_, JSON, Header(..), HeaderName(..),
                         RpcEnv(..), rpcEnv)
 
+import Web.Zenfolio.RPC (zfTokenHeader)
 import Web.Zenfolio.Types (AuthToken)
 
 data ZMEnv = ZMEnv {
@@ -40,7 +42,7 @@ instance JSON a => Remote (ZM a) where
                       }
             ioRemote_ h f env
         where headers Nothing      = []
-              headers (Just token) = [ Header (HdrCustom "X-Zenfolio-Token") token ]
+              headers (Just token) = [ zfTokenHeader token ]
 
 zenfolio :: ZM a -> IO a
 zenfolio zm = runReaderT (unZM zm) nullEnv

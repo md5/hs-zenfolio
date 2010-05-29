@@ -32,6 +32,7 @@ library
                   Web.Zenfolio.Groups,
                   Web.Zenfolio.Monad,
                   Web.Zenfolio.PhotoSets,
+                  Web.Zenfolio.Photos.Upload,
                   Web.Zenfolio.RPC,
                   Web.Zenfolio.Types,
                   Web.Zenfolio.Users,
@@ -39,7 +40,9 @@ library
 
  Ghc-Options:     -Wall
 
- build-depends: HTTP, network, utf8-string, json, bytestring, mtl, time, old-locale, Crypto
+ build-depends: HTTP, network, utf8-string, json, bytestring, mtl,
+                time, old-time, old-locale, Crypto, magic, mime,
+                filepath, unix
  if flag(old-base)
    Build-Depends: base < 3
  else
@@ -57,5 +60,10 @@ executable loadPublicProfile {
 
 executable loadPrivateProfile {
   main-is:              examples/LoadPrivateProfile.hs
+  ghc-options:          -Wall
+}
+
+executable uploadPhoto {
+  main-is:              examples/UploadPhoto.hs
   ghc-options:          -Wall
 }

@@ -6,6 +6,7 @@ module Web.Zenfolio.Types (
     RealmID,
     GroupID,
     PhotoSetID,
+    PhotoID,
     CategoryID,
     DateTime,
     GroupIndex,
@@ -18,6 +19,7 @@ module Web.Zenfolio.Types (
     AuthChallenge(..),
     User(..),
     Group(..),
+    GroupElement(..),
     PhotoSet(..),
     PhotoSetType(..),
     PhotoSetUpdater(..)
@@ -45,6 +47,8 @@ type RealmID = Integer
 type GroupID = Integer
 
 type PhotoSetID = Integer
+
+type PhotoID = Integer
 
 type FileID = Integer
 
