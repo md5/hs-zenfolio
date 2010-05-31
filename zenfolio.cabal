@@ -32,9 +32,11 @@ library
                   Web.Zenfolio.Groups,
                   Web.Zenfolio.Monad,
                   Web.Zenfolio.PhotoSets,
+                  Web.Zenfolio.Photos,
                   Web.Zenfolio.Photos.Upload,
                   Web.Zenfolio.RPC,
                   Web.Zenfolio.Types,
+                  Web.Zenfolio.Types.Access,
                   Web.Zenfolio.Users,
                   Web.Zenfolio.Utils
 
@@ -65,5 +67,10 @@ executable loadPrivateProfile {
 
 executable uploadPhoto {
   main-is:              examples/UploadPhoto.hs
+  ghc-options:          -Wall
+}
+
+executable loadPhoto {
+  main-is:              examples/LoadPhoto.hs
   ghc-options:          -Wall
 }

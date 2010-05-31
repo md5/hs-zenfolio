@@ -3,7 +3,6 @@
 module Web.Zenfolio.Types (
     LoginName,
     Password,
-    RealmID,
     GroupID,
     PhotoSetID,
     PhotoID,
@@ -13,16 +12,18 @@ module Web.Zenfolio.Types (
     AuthToken,
     Owner,
 
-    AccessMask,
-    AccessMaskFlag(..),
-    AccessType(..),
     AuthChallenge(..),
     User(..),
     Group(..),
     GroupElement(..),
+    Photo(..),
     PhotoSet(..),
     PhotoSetType(..),
-    PhotoSetUpdater(..)
+    PhotoSetUpdater(..),
+
+    Access.RealmID,
+    Access.AccessMask,
+    Access.AccessType
 ) where
 
 import Control.Applicative ((<*>), (<$>))
@@ -36,13 +37,13 @@ import System.Locale (defaultTimeLocale)
 
 import Text.JSON (JSON(..), JSValue(..), makeObj, fromJSString, toJSString)
 import Text.JSON.Generic (fromJSON, toJSON)
+
+import qualified Web.Zenfolio.Types.Access as Access
 import Web.Zenfolio.Utils
 
 type LoginName = String
 
 type Password = String
-
-type RealmID = Integer
 
 type GroupID = Integer
 
@@ -58,9 +59,15 @@ type DateTime = LocalTime
 
 type GroupIndex = Integer
 
+type FileHash = [Word8]
+
+type PasswordSalt = [Word8]
+
+type Challenge = [Word8]
+
 data AuthChallenge = AuthChallenge {
-    acPasswordSalt :: [Word8],
-    acChallenge    :: [Word8]
+    acPasswordSalt :: PasswordSalt,
+    acChallenge    :: Challenge
 } deriving (Eq, Show)
 
 type AuthToken = String
@@ -119,7 +126,7 @@ data File = File {
     fileHeight   :: Int,
     fileSequence :: String,
     fileMimeType :: String,
-    fileHash     :: Maybe [Word8],
+    fileHash     :: Maybe FileHash,
     fileUrlCore  :: String
 } deriving (Eq, Show, Typeable, Data)
 
@@ -131,14 +138,14 @@ data Group = Group {
     groupSubGroupCount    :: Integer,
     groupGalleryCount     :: Integer,
     groupPhotoCount       :: Integer,
-    groupParentGroups     :: [Group],
+    groupParentGroups     :: [GroupID],
     groupElements         :: [GroupElement],
     groupPageUrl          :: Maybe String,
-    groupTitlePhoto       :: Maybe File,
+    groupTitlePhoto       :: Maybe Photo,
     groupId               :: GroupID,
     groupIndex            :: GroupIndex,
     groupTitle            :: String,
-    groupAccessDescriptor :: Maybe AccessDescriptor,
+    groupAccessDescriptor :: Maybe Access.AccessDescriptor,
     groupOwner            :: Maybe Owner,
     groupHideBranding     :: Bool
 } deriving (Eq, Show)
@@ -147,62 +154,44 @@ data GroupElement = GroupElementGroup    Group
                   | GroupElementPhotoSet PhotoSet
     deriving (Eq, Show)
 
-data AccessType = Private
-                | Public
-                | UserList
-                | Password
-    deriving (Eq, Enum, Bounded, Read, Show, Typeable, Data)
+type PricingKey = Integer
 
-newtype AccessMask = AccessMask {
-    amFlags :: [AccessMaskFlag]
-} deriving (Eq, Read, Typeable, Data)
-
-instance Show AccessMask where
-    show (AccessMask flags) = show flags
-
-data AccessMaskFlag = None
-                    -- "Hide" flags
-                    | HideDateCreated
-                    | HideDateModified
-                    | HideDateTaken
-                    | HideMetaData
-                    | HideUserStats
-                    | HideVisits
-                    -- "No" flags
-                    | NoCollections
-                    | NoPrivateSearch
-                    | NoPublicSearch
-                    | NoRecentList
-                    -- "Protect" flags
-                    | ProtectExif
-                    | ProtectExtraLarge
-                    | ProtectLarge
-                    | ProtectMedium
-                    | ProtectOriginals
-                    -- Guestbook flags
-                    | ProtectGuestBook
-                    | NoPublicGuestbookPosts
-                    | NoPrivateGuestbookPosts
-                    | NoAnonymousGuestbookPosts
-                    -- Comment flags
-                    | ProtectComments
-                    | NoPublicComments
-                    | NoPrivateComments
-                    | NoAnonymousComments
-                    -- Other flags
-                    | PasswordProtectOriginals
-                    | ProtectAll
+data PhotoRotation = None
+                   | Rotate90
+                   | Rotate180
+                   | Rotate270
+                   | Flip
+                   | Rotate90Flip
+                   | Rotate180Flip
+                   | Rotate270Flip
     deriving (Eq, Ord, Enum, Bounded, Read, Show, Typeable, Data)
 
-data AccessDescriptor = AccessDescriptor {
-    adRealmId         :: RealmID,
-    adAccessType      :: AccessType,
-    adIsDerived       :: Bool,
-    adAccessMask      :: AccessMask,
-    adViewers         :: [String],
-    adPasswordHint    :: Maybe String,
-    adSrcPasswordHint :: Maybe String
-} deriving (Eq, Show, Typeable, Data)
+data Photo = Photo {
+    photoId               :: PhotoID,
+    photoWidth            :: Int,
+    photoHeight           :: Int,
+    photoSequence         :: String,
+    photoAccessDescriptor :: Access.AccessDescriptor,
+    photoTitle            :: Maybe String,
+    photoCaption          :: Maybe String,
+    photoFileName         :: Maybe String,
+    photoUploadedOn       :: Maybe DateTime,
+    photoTakenOn          :: Maybe DateTime,
+    photoOwner            :: Maybe String,
+    photoGallery          :: PhotoSetID,
+    photoViews            :: Integer,
+    photoSize             :: Integer,
+    photoKeywords         :: [String],
+    photoCategories       :: [CategoryID],
+    photoPricingKey       :: Maybe PricingKey,
+    photoMimeType         :: String,
+    photoOriginalUrl      :: Maybe String,
+    photoUrlCore          :: String,
+    photoCopyright        :: Maybe String,
+    photoRotation         :: PhotoRotation,
+    photoFileHash         :: Maybe FileHash,
+    photoPageUrl          :: Maybe String
+} deriving (Eq, Show)
 
 data PhotoSetType = Gallery
                   | Collection
@@ -227,10 +216,10 @@ data PhotoSet = PhotoSet {
     psViews              :: Integer,
     psType               :: PhotoSetType,
     psFeaturedIndex      :: Maybe Integer,
-    psTitlePhoto         :: Maybe File,
+    psTitlePhoto         :: Maybe Photo,
     psIsRandomTitlePhoto :: Bool,
-    psParentGroups       :: [Group],
-    psPhotos             :: [File],
+    psParentGroups       :: [GroupID],
+    psPhotos             :: [Photo],
     psKeywords           :: [PhotoSetKeyword],
     psCategories         :: [CategoryID],
     psUploadUrl          :: Maybe String,
@@ -238,7 +227,7 @@ data PhotoSet = PhotoSet {
     psId                 :: PhotoSetID,
     psGroupIndex         :: GroupIndex,
     psTitle              :: Maybe String,
-    psAccessDescriptor   :: Maybe AccessDescriptor,
+    psAccessDescriptor   :: Maybe Access.AccessDescriptor,
     psOwner              :: Maybe Owner,
     psHideBranding       :: Bool
 } deriving (Eq, Show)
@@ -440,44 +429,6 @@ instance JSON Group where
 
     readJSON json = fail $ "Unexpected JSON for Group: " ++ show json
 
-instance JSON AccessDescriptor where
-    showJSON descriptor = makeObj
-        [ recTypeField descriptor
-        , ("RealmId", showJSON $ adRealmId descriptor)
-        , ("AccessType", showJSON $ adAccessType descriptor)
-        , ("IsDerived", showJSON $ adIsDerived descriptor)
-        , ("AccessMask", showJSON $ adAccessMask descriptor)
-        , ("Viewers", showJSON $ adViewers descriptor)
-        , ("PasswordHint", mShowJSON $ adPasswordHint descriptor)
-        , ("SrcPasswordHint", mShowJSON $ adSrcPasswordHint descriptor)
-        ]
-
-    readJSON (JSObject obj) =
-        AccessDescriptor <$> field "RealmId" obj
-                         <*> field "AccessType" obj
-                         <*> field "IsDerived" obj
-                         <*> field "AccessMask" obj
-                         <*> lField "Viewers" obj
-                         <*> mField "PasswordHint" obj
-                         <*> mField "SrcPasswordHint" obj
-
-    readJSON json = fail $ "Unexpected JSON AccessDescriptor: " ++ show json
-
-instance JSON AccessMask where
-    showJSON (AccessMask flags) = JSString $ toJSString flagStr
-        where flagStr = intercalate ", " $ map show (sort (nub flags))
-
-    readJSON (JSString s) =
-        AccessMask <$> return parseFlags
-        where parseFlags :: [AccessMaskFlag]
-              parseFlags = map (read . takeWhile (/= ',')) $ words (fromJSString s)
-
-    readJSON json = fail $ "Unexpected JSON AccessMask: " ++ show json
-
-instance JSON AccessType where
-    showJSON = toJSON
-    readJSON = fromJSON
-
 instance JSON GroupElement where
     showJSON (GroupElementGroup group)       = showJSON group
     showJSON (GroupElementPhotoSet photoSet) = showJSON photoSet
@@ -490,6 +441,67 @@ instance JSON GroupElement where
             _          -> fail $ "Unexepected GroupElement object type: " ++ show v
 
     readJSON json = fail $ "Unexpected JSON GroupElement: " ++ show json
+
+instance JSON Photo where
+    showJSON photo = makeObj 
+        [ ("$type", showJSON $ "Photo")
+        , ("Id", showJSON $ photoId photo)
+        , ("Width", showJSON $ photoWidth photo)
+        , ("Height", showJSON $ photoHeight photo)
+        , ("Sequence", showJSON $ photoSequence photo)
+        , ("AccessDescriptor", showJSON $ photoAccessDescriptor photo)
+        , ("Title", mShowJSON $ photoTitle photo)
+        , ("Caption", mShowJSON $ photoCaption photo)
+        , ("FileName", mShowJSON $ photoFileName photo)
+        , ("UploadedOn", mShowJSON $ photoUploadedOn photo)
+        , ("TakenOn", mShowJSON $ photoTakenOn photo)
+        , ("Owner", mShowJSON $ photoOwner photo)
+        , ("Gallery", showJSON $ photoGallery photo)
+        , ("Views", showJSON $ photoViews photo)
+        , ("Size", showJSON $ photoSize photo)
+        , ("Keywords", showJSON $ photoKeywords photo)
+        , ("Categories", showJSON $ photoCategories photo)
+        , ("PricingKey", mShowJSON $ photoPricingKey photo)
+        , ("MimeType", showJSON $ photoMimeType photo)
+        , ("OriginalUrl", mShowJSON $ photoOriginalUrl photo)
+        , ("UrlCore", showJSON $ photoUrlCore photo)
+        , ("Copyright", mShowJSON $ photoCopyright photo)
+        , ("Rotation", showJSON $ photoRotation photo)
+        , ("FileHash", mShowJSON $ photoFileHash photo)
+        , ("PageUrl", mShowJSON $ photoPageUrl photo)
+        ]
+
+    readJSON (JSObject obj) =
+        Photo <$> field "Id" obj
+              <*> field "Width" obj
+              <*> field "Height" obj
+              <*> field "Sequence" obj
+              <*> field "AccessDescriptor" obj
+              <*> mField "Title" obj
+              <*> mField "Caption" obj
+              <*> mField "FileName" obj
+              <*> mField "UploadedOn" obj
+              <*> mField "TakenOn" obj
+              <*> mField "Owner" obj
+              <*> field "Gallery" obj
+              <*> field "Views" obj
+              <*> field "Size" obj
+              <*> lField "Keywords" obj
+              <*> lField "Categories" obj
+              <*> mField "PricingKey" obj
+              <*> field "MimeType" obj
+              <*> mField "OriginalUrl" obj
+              <*> field "UrlCore" obj
+              <*> mField "Copyright" obj
+              <*> field "Rotation" obj
+              <*> mField "FileHash" obj
+              <*> mField "PageUrl" obj
+
+    readJSON json = fail $ "Unexpected JSON Photo: " ++ show json
+
+instance JSON PhotoRotation where
+    showJSON = toJSON
+    readJSON = fromJSON
 
 instance JSON PhotoSetType where
     showJSON = toJSON
