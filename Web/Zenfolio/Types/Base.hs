@@ -10,13 +10,14 @@ module Web.Zenfolio.Types.Base (
     DateTime,
     GroupIndex,
     AuthToken,
-    Owner,
 
     AuthChallenge(..),
+    ErrorCode(..),
     User(..),
     Group(..),
     GroupElement(..),
     Photo(..),
+    PhotoRotation(..),
     PhotoSet(..),
     PhotoSetType(..),
     PhotoSetUpdater(..)
@@ -24,14 +25,13 @@ module Web.Zenfolio.Types.Base (
 
 import Control.Applicative ((<*>), (<$>))
 import Data.Data (Data, Typeable)
-import Data.List (sort, nub, intercalate)
 import Data.Maybe (catMaybes)
 import Data.Time.Format (formatTime, parseTime)
 import Data.Word (Word8)
 import Data.Time.LocalTime (LocalTime)
 import System.Locale (defaultTimeLocale)
 
-import Text.JSON (JSON(..), JSValue(..), makeObj, fromJSString, toJSString)
+import Text.JSON (JSON(..), JSValue(..), makeObj)
 import Text.JSON.Generic (fromJSON, toJSON)
 
 import qualified Web.Zenfolio.Types.Access as Access
@@ -68,7 +68,17 @@ data AuthChallenge = AuthChallenge {
 
 type AuthToken = String
 
-type Owner = String
+data ErrorCode = E__ACCOUNTLOCKED
+               | E_CONNECTIONISNOTSECURE
+               | E_DUPLICATEEMAIL
+               | E_DUPLICATELOGINNAME
+               | E_INVALIDCREDENTIALS
+               | E_INVALIDPARAM
+               | E_NOSUCHOBJECT
+               | E_NOTAUTHENTICATED
+               | E_NOTAUTHORIZED
+               | E_UNSPECIFIEDERROR
+    deriving (Eq, Ord, Enum, Bounded, Read, Show, Data, Typeable)
 
 data User = User {
     uLoginName         :: LoginName,
@@ -142,7 +152,7 @@ data Group = Group {
     groupIndex            :: GroupIndex,
     groupTitle            :: String,
     groupAccessDescriptor :: Maybe Access.AccessDescriptor,
-    groupOwner            :: Maybe Owner,
+    groupOwner            :: Maybe LoginName,
     groupHideBranding     :: Bool
 } deriving (Eq, Show)
 
@@ -224,7 +234,7 @@ data PhotoSet = PhotoSet {
     psGroupIndex         :: GroupIndex,
     psTitle              :: Maybe String,
     psAccessDescriptor   :: Maybe Access.AccessDescriptor,
-    psOwner              :: Maybe Owner,
+    psOwner              :: Maybe LoginName,
     psHideBranding       :: Bool
 } deriving (Eq, Show)
 
@@ -246,6 +256,10 @@ instance JSON AuthChallenge where
 
 jsonRpcDateFormat :: String
 jsonRpcDateFormat = "%Y-%m-%d %H:%M:%S"
+
+instance JSON ErrorCode where
+    showJSON = toJSON
+    readJSON = fromJSON
 
 instance JSON LocalTime where
     showJSON t = makeObj
