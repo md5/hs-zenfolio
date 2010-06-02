@@ -1,0 +1,27 @@
+# Snapshots
+AccessDescriptor
+Address
+File
+Group
+GroupElement
+Photo
+PhotoSet
+User
+
+# Updaters
+AccessUpdater
+GroupUpdater
+PhotoSetUpdater
+PhotoUpdater
+
+AccessMask
+AccessType
+AuthChallenge
+CategoryInfo
+GroupShiftOrder
+PhotoResult
+PhotoRotation
+PhotoSetResult
+PhotoSetType
+ShiftOrder
+SortOrder
