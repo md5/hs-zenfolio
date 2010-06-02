@@ -19,6 +19,7 @@ module Web.Zenfolio.Types.Base (
     CategoryInfo(..),
     Photo(..),
     PhotoRotation(..),
+    PhotoUpdater(..),
     PhotoSet(..),
     PhotoSetType(..),
     PhotoSetUpdater(..)
@@ -167,6 +168,15 @@ data CategoryInfo = CategoryInfo {
 } deriving (Eq, Show)
 
 type PricingKey = Integer
+
+data PhotoUpdater = PhotoUpdater {
+    puTitle      :: Maybe String,
+    puCaption    :: Maybe String,
+    puKeywords   :: Maybe [String],
+    puCategories :: Maybe [CategoryID],
+    puCopyright  :: Maybe String,
+    puFileName   :: Maybe String
+} deriving (Eq, Show, Typeable, Data)
 
 data PhotoRotation = None
                    | Rotate90
@@ -535,6 +545,27 @@ instance JSON PhotoRotation where
 instance JSON PhotoSetType where
     showJSON = toJSON
     readJSON = fromJSON
+
+instance JSON PhotoUpdater where
+    showJSON updater = makeObj $ catMaybes
+        [ Just (recTypeField updater)
+        , oJSONField "Title" $ puTitle updater
+        , oJSONField "Caption" $ puCaption updater
+        , oJSONField "Keywords" $ puKeywords updater
+        , oJSONField "Categories" $ puCategories updater
+        , oJSONField "Copyright" $ puCopyright updater
+        , oJSONField "FileName" $ puFileName updater
+        ]
+
+    readJSON (JSObject obj) =
+        PhotoUpdater <$> mField "Title" obj
+                        <*> mField "Caption" obj
+                        <*> mField "Keywords" obj
+                        <*> mField "Categories" obj
+                        <*> mField "Copyright" obj
+                        <*> mField "FileName" obj
+
+    readJSON json = fail $ "Unexpected JSON PhotoUpdater: " ++ show json
 
 instance JSON PhotoSetUpdater where
     showJSON updater = makeObj $ catMaybes
