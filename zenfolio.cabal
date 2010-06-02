@@ -37,6 +37,8 @@ library
                   Web.Zenfolio.RPC,
                   Web.Zenfolio.Types,
                   Web.Zenfolio.Types.Access,
+                  Web.Zenfolio.Types.Base,
+                  Web.Zenfolio.Types.Search,
                   Web.Zenfolio.Users,
                   Web.Zenfolio.Utils
 
