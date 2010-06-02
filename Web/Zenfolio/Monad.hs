@@ -16,8 +16,8 @@ module Web.Zenfolio.Monad (
 import Control.Monad (when)
 import Control.Monad.Reader (MonadReader, ReaderT(..), asks, local)
 import Control.Monad.Trans (MonadIO, liftIO)
-import Network.JsonRpc (Remote(..), ioRemote_, JSON, Header(..), HeaderName(..),
-                        RpcEnv(..), rpcEnv)
+import Network.JsonRpc (Remote(..), ioRemote_, JSON,
+                        RpcEnv(rpcHeaders,rpcDebug), rpcEnv)
 
 import Web.Zenfolio.RPC (zfTokenHeader)
 import Web.Zenfolio.Types (AuthToken)
@@ -27,9 +27,8 @@ data ZMEnv = ZMEnv {
         zmDebug :: Bool
     } deriving (Eq, Show)
 
-newtype ZM a = ZM {
-        unZM :: ReaderT ZMEnv IO a
-    } deriving (Monad, MonadReader ZMEnv, MonadIO)
+newtype ZM a = ZM (ReaderT ZMEnv IO a)
+    deriving (Monad, MonadReader ZMEnv, MonadIO)
 
 instance JSON a => Remote (ZM a) where
     remote_ h f = do
@@ -45,7 +44,7 @@ instance JSON a => Remote (ZM a) where
               headers (Just token) = [ zfTokenHeader token ]
 
 zenfolio :: ZM a -> IO a
-zenfolio zm = runReaderT (unZM zm) nullEnv
+zenfolio (ZM zm) = runReaderT zm nullEnv
 
 nullEnv :: ZMEnv
 nullEnv = ZMEnv {

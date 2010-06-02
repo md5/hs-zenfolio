@@ -16,6 +16,7 @@ module Web.Zenfolio.Types.Base (
     User(..),
     Group(..),
     GroupElement(..),
+    CategoryInfo(..),
     Photo(..),
     PhotoRotation(..),
     PhotoSet(..),
@@ -159,6 +160,11 @@ data Group = Group {
 data GroupElement = GroupElementGroup    Group
                   | GroupElementPhotoSet PhotoSet
     deriving (Eq, Show)
+
+data CategoryInfo = CategoryInfo {
+    categoryCode        :: CategoryID,
+    categoryDisplayName :: String
+} deriving (Eq, Show)
 
 type PricingKey = Integer
 
@@ -451,6 +457,19 @@ instance JSON GroupElement where
             _          -> fail $ "Unexepected GroupElement object type: " ++ show v
 
     readJSON json = fail $ "Unexpected JSON GroupElement: " ++ show json
+
+instance JSON CategoryInfo where
+    showJSON cat = makeObj
+        [ ("$type", showJSON $ "CategoryInfo")
+        , ("Code", showJSON $ categoryCode cat)
+        , ("DisplayName", showJSON $ categoryDisplayName cat)
+        ]
+
+    readJSON (JSObject obj) =
+        CategoryInfo <$> field "Code" obj
+                     <*> field "DisplayName" obj
+
+    readJSON json = fail $ "Unexpected JSON for CategoryInfo: " ++ show json
 
 instance JSON Photo where
     showJSON photo = makeObj 
