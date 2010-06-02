@@ -7,7 +7,8 @@ module Web.Zenfolio.Types (
     Access.AccessType,
 
     Search.SortOrder,
-    Search.PhotoResult
+    Search.PhotoResult,
+    Search.PhotoSetResult
 ) where
 
 import Web.Zenfolio.Types.Base
