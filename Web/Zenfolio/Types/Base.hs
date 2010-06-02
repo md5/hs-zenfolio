@@ -16,6 +16,7 @@ module Web.Zenfolio.Types.Base (
     User(..),
     Group(..),
     GroupElement(..),
+    GroupUpdater(..),
     CategoryInfo(..),
     Photo(..),
     PhotoRotation(..),
@@ -161,6 +162,12 @@ data Group = Group {
 data GroupElement = GroupElementGroup    Group
                   | GroupElementPhotoSet PhotoSet
     deriving (Eq, Show)
+
+data GroupUpdater = GroupUpdater {
+    guTitle           :: Maybe String,
+    guCaption         :: Maybe String,
+    guCustomReference :: Maybe String
+} deriving (Eq, Show, Typeable, Data)
 
 data CategoryInfo = CategoryInfo {
     categoryCode        :: CategoryID,
@@ -467,6 +474,21 @@ instance JSON GroupElement where
             _          -> fail $ "Unexepected GroupElement object type: " ++ show v
 
     readJSON json = fail $ "Unexpected JSON GroupElement: " ++ show json
+
+instance JSON GroupUpdater where
+    showJSON updater = makeObj $ catMaybes
+        [ Just (recTypeField updater)
+        , oJSONField "Title" $ guTitle updater
+        , oJSONField "Caption" $ guCaption updater
+        , oJSONField "CustomReference" $ guCustomReference updater
+        ]
+
+    readJSON (JSObject obj) =
+        GroupUpdater <$> mField "Title" obj
+                        <*> mField "Caption" obj
+                        <*> mField "CustomReference" obj
+
+    readJSON json = fail $ "Unexpected JSON GroupUpdater: " ++ show json
 
 instance JSON CategoryInfo where
     showJSON cat = makeObj
