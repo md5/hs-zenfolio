@@ -485,8 +485,8 @@ instance JSON GroupUpdater where
 
     readJSON (JSObject obj) =
         GroupUpdater <$> mField "Title" obj
-                        <*> mField "Caption" obj
-                        <*> mField "CustomReference" obj
+                     <*> mField "Caption" obj
+                     <*> mField "CustomReference" obj
 
     readJSON json = fail $ "Unexpected JSON GroupUpdater: " ++ show json
 

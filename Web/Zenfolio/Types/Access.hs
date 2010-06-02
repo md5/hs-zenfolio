@@ -5,11 +5,13 @@ module Web.Zenfolio.Types.Access (
     AccessMask,
     AccessMaskFlag(..),
     AccessDescriptor(..),
+    AccessUpdater(..),
     RealmID
 ) where
 
 import Control.Applicative ((<$>), (<*>))
 import Data.Data (Data, Typeable)
+import Data.Maybe (catMaybes)
 import Text.JSON (JSON(..), JSValue(..), fromJSString, toJSString, makeObj)
 import Text.JSON.Generic (toJSON, fromJSON)
 
@@ -73,6 +75,13 @@ data AccessDescriptor = AccessDescriptor {
     adSrcPasswordHint :: Maybe String
 } deriving (Eq, Show, Typeable, Data)
 
+data AccessUpdater = AccessUpdater {
+    auAccessMask :: Maybe AccessMask,
+    auAccessType :: Maybe AccessType,
+    auViewers    :: Maybe [String],
+    auPassword   :: Maybe String,
+    auIsDerived  :: Maybe Bool
+} deriving (Eq, Show, Typeable, Data)
 
 instance JSON AccessDescriptor where
     showJSON descriptor = makeObj
@@ -111,3 +120,23 @@ instance JSON AccessMask where
 instance JSON AccessType where
     showJSON = toJSON
     readJSON = fromJSON
+
+instance JSON AccessUpdater where
+    showJSON updater = makeObj $ catMaybes
+        [ Just (recTypeField updater)
+        , oJSONField "AccessMask" $ auAccessMask updater
+        , oJSONField "AccessType" $ auAccessType updater
+        , oJSONField "Viewers" $ auViewers updater
+        , oJSONField "Password" $ auPassword updater
+        , oJSONField "IsDerived" $ auIsDerived updater
+        ]
+
+    readJSON (JSObject obj) =
+        AccessUpdater <$> mField "AccessMask" obj
+                      <*> mField "AccessType" obj
+                      <*> mField "Viewers" obj
+                      <*> mField "Password" obj
+                      <*> mField "IsDerived" obj
+
+    readJSON json = fail $ "Unexpected JSON AccessUpdater: " ++ show json
+

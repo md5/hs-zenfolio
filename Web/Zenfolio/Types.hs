@@ -5,6 +5,8 @@ module Web.Zenfolio.Types (
     Access.RealmID,
     Access.AccessMask,
     Access.AccessType,
+    Access.AccessDescriptor,
+    Access.AccessUpdater,
 
     Search.SortOrder,
     Search.PhotoResult,
