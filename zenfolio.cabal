@@ -83,3 +83,8 @@ executable updatePhotoCaption {
   main-is:              examples/UpdatePhotoCaption.hs
   ghc-options:          -Wall
 }
+
+executable searchPhotoByText {
+  main-is:              examples/SearchPhotoByText.hs
+  ghc-options:          -Wall
+}

@@ -34,10 +34,10 @@ replacePhoto = zfRemote "ReplacePhoto"
 rotatePhoto :: PhotoID -> PhotoRotation -> ZM Photo
 rotatePhoto = zfRemote "RotatePhoto"
 
-searchPhotoByCategory :: String -> SortOrder -> CategoryID -> Int -> Int -> ZM PhotoResult
+searchPhotoByCategory :: SearchID -> SortOrder -> CategoryID -> Int -> Int -> ZM PhotoResult
 searchPhotoByCategory = zfRemote "SearchPhotoByCategory"
 
-searchPhotoByText :: String -> SortOrder -> String -> Int -> Int -> ZM PhotoResult
+searchPhotoByText :: SearchID -> SortOrder -> String -> Int -> Int -> ZM PhotoResult
 searchPhotoByText = zfRemote "SearchPhotoByText"
 
 updatePhoto :: PhotoID -> PhotoUpdater -> ZM Photo
