@@ -1,5 +1,7 @@
 module Web.Zenfolio.Photos (
     deletePhoto,
+    getPopularPhotos,
+    getRecentPhotos,
     loadPhoto,
     movePhoto,
     replacePhoto,
@@ -21,6 +23,12 @@ import Web.Zenfolio.Types (Photo, PhotoID, PhotoRotation, PhotoUpdater(..),
 
 deletePhoto :: PhotoID -> ZM ()
 deletePhoto = zfRemote "DeletePhoto"
+
+getPopularPhotos :: Int -> Int -> ZM [Photo]
+getPopularPhotos = zfRemote "GetPopularPhotos"
+
+getRecentPhotos :: Int -> Int -> ZM [Photo]
+getRecentPhotos = zfRemote "GetRecentPhotos"
 
 loadPhoto :: PhotoID -> ZM Photo
 loadPhoto = zfRemote "LoadPhoto"
