@@ -4,6 +4,8 @@ module Web.Zenfolio.Photos (
     movePhoto,
     replacePhoto,
     rotatePhoto,
+    searchPhotoByCategory,
+    searchPhotoByText,
     updatePhoto,
     updatePhotoAccess,
 
@@ -14,7 +16,7 @@ import Web.Zenfolio.Auth (updatePhotoAccess)
 import Web.Zenfolio.Monad (ZM)
 import Web.Zenfolio.RPC (zfRemote)
 import Web.Zenfolio.Types (Photo, PhotoID, PhotoRotation, PhotoUpdater(..),
-                           PhotoSetID, GroupIndex)
+                           PhotoSetID, GroupIndex, SortOrder, CategoryID, PhotoResult)
 
 deletePhoto :: PhotoID -> ZM ()
 deletePhoto = zfRemote "DeletePhoto"
@@ -30,6 +32,12 @@ replacePhoto = zfRemote "ReplacePhoto"
 
 rotatePhoto :: PhotoID -> PhotoRotation -> ZM Photo
 rotatePhoto = zfRemote "RotatePhoto"
+
+searchPhotoByCategory :: String -> SortOrder -> CategoryID -> Int -> Int -> ZM PhotoResult
+searchPhotoByCategory = zfRemote "SearchPhotoByCategory"
+
+searchPhotoByText :: String -> SortOrder -> String -> Int -> Int -> ZM PhotoResult
+searchPhotoByText = zfRemote "SearchPhotoByText"
 
 updatePhoto :: PhotoID -> PhotoUpdater -> ZM Photo
 updatePhoto = zfRemote "UpdatePhoto"
