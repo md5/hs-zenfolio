@@ -4,7 +4,7 @@ module Web.Zenfolio.Categories (
 
 import Web.Zenfolio.Monad (ZM)
 import Web.Zenfolio.RPC (zfRemote)
-import Web.Zenfolio.Types (CategoryID)
+import Web.Zenfolio.Types (CategoryInfo)
 
-getCategories :: ZM [CategoryID]
+getCategories :: ZM [CategoryInfo]
 getCategories = zfRemote "GetCategories"

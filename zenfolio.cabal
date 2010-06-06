@@ -89,3 +89,8 @@ executable searchPhotoByText {
   main-is:              examples/SearchPhotoByText.hs
   ghc-options:          -Wall
 }
+
+executable getCategories {
+  main-is:              examples/GetCategories.hs
+  ghc-options:          -Wall
+}
