@@ -10,10 +10,16 @@ module Web.Zenfolio.Types (
 
     Search.SortOrder,
     Search.PhotoResult,
-    Search.PhotoSetResult
+    Search.PhotoSetResult,
+
+    GroupShiftOrder.GroupShiftOrder,
+
+    ShiftOrder.ShiftOrder
 ) where
 
 import Web.Zenfolio.Types.Base
 
 import qualified Web.Zenfolio.Types.Access as Access
 import qualified Web.Zenfolio.Types.Search as Search
+import qualified Web.Zenfolio.Types.GroupShiftOrder as GroupShiftOrder
+import qualified Web.Zenfolio.Types.ShiftOrder as ShiftOrder

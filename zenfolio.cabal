@@ -38,7 +38,9 @@ library
                   Web.Zenfolio.Types,
                   Web.Zenfolio.Types.Access,
                   Web.Zenfolio.Types.Base,
+                  Web.Zenfolio.Types.GroupShiftOrder,
                   Web.Zenfolio.Types.Search,
+                  Web.Zenfolio.Types.ShiftOrder,
                   Web.Zenfolio.Users,
                   Web.Zenfolio.Utils
 
