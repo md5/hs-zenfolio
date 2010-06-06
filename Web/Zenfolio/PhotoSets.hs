@@ -1,6 +1,8 @@
 module Web.Zenfolio.PhotoSets (
     createPhotoSet,
     deletePhotoSet,
+    getPopularSets,
+    getRecentSets,
     loadPhotoSet,
     movePhotoSet,
     reorderPhotoSet,
@@ -26,6 +28,12 @@ createPhotoSet = zfRemote "CreatePhotoSet"
 
 deletePhotoSet :: PhotoSetID -> ZM ()
 deletePhotoSet = zfRemote "DeletePhotoSet"
+
+getPopularSets :: PhotoSetType -> Int -> Int -> ZM [PhotoSet]
+getPopularSets = zfRemote "GetPopularSets"
+
+getRecentSets :: PhotoSetType -> Int -> Int -> ZM [PhotoSet]
+getRecentSets = zfRemote "GetRecentSets"
 
 loadPhotoSet :: PhotoSetID -> ZM PhotoSet
 loadPhotoSet = zfRemote "LoadPhotoSet"
