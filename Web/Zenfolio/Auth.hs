@@ -36,7 +36,7 @@ authenticatePlain :: LoginName -> Password -> ZM AuthToken
 authenticatePlain = zfRemoteSsl "AuthenticatePlain"
 
 keyringAddKeyPlain :: Keyring -> RealmID -> Password -> ZM Keyring
-keyringAddKeyPlain = zfRemote "KeyringAddKeyPlain"
+keyringAddKeyPlain = zfRemoteSsl "KeyringAddKeyPlain"
 
 loadAccessRealm :: RealmID -> ZM AccessDescriptor
 loadAccessRealm = zfRemote "LoadAccessRealm"
