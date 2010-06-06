@@ -4,6 +4,7 @@ module Web.Zenfolio.Groups (
     loadGroup,
     moveGroup,
     reorderGroup,
+    setGroupTitlePhoto,
     updateGroup,
 
     newUpdater
@@ -11,7 +12,8 @@ module Web.Zenfolio.Groups (
 
 import Web.Zenfolio.Monad (ZM)
 import Web.Zenfolio.RPC (zfRemote)
-import Web.Zenfolio.Types (Group, GroupID, GroupIndex, GroupShiftOrder, GroupUpdater(..))
+import Web.Zenfolio.Types (Group, GroupID, GroupIndex, GroupShiftOrder, GroupUpdater(..),
+                           PhotoID)
 
 createGroup :: GroupID -> GroupUpdater -> ZM Group
 createGroup = zfRemote "CreateGroup"
@@ -27,6 +29,9 @@ moveGroup = zfRemote "MoveGroup"
 
 reorderGroup :: GroupID -> GroupShiftOrder -> ZM ()
 reorderGroup = zfRemote "ReorderGroup"
+
+setGroupTitlePhoto :: GroupID -> PhotoID -> ZM ()
+setGroupTitlePhoto = zfRemote "SetGroupTitlePhoto"
 
 updateGroup :: GroupID -> GroupUpdater -> ZM Group
 updateGroup = zfRemote "UpdateGroup"
