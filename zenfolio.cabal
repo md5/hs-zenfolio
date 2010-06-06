@@ -30,6 +30,7 @@ library
                   Web.Zenfolio.API,
                   Web.Zenfolio.Auth,
                   Web.Zenfolio.Categories,
+                  Web.Zenfolio.Collections,
                   Web.Zenfolio.Groups,
                   Web.Zenfolio.Monad,
                   Web.Zenfolio.PhotoSets,
