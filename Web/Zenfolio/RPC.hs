@@ -1,5 +1,6 @@
 module Web.Zenfolio.RPC (
     zfRemote,
+    zfRemoteSsl,
     zfAgentHeaders,
     zfTokenHeader
 ) where
@@ -25,5 +26,12 @@ zfBaseUri :: URI
 zfBaseUri = maybe (error $ "Invalid base URI: " ++ base) id (parseURI base)
     where base = "http://www.zenfolio.com/api/1.2/zfapi.asmx"
 
+zfSecureBaseUri :: URI
+zfSecureBaseUri = maybe (error $ "Invalid secure base URI: " ++ secureBase) id (parseURI secureBase)
+    where secureBase = "https://www.zenfolio.com/api/1.2/zfapi.asmx"
+
 zfRemote :: Remote a => MethodName -> a
 zfRemote = remote zfBaseUri zfAgentHeaders
+
+zfRemoteSsl :: Remote a => MethodName -> a
+zfRemoteSsl = remote zfSecureBaseUri zfAgentHeaders
