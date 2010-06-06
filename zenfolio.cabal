@@ -29,6 +29,7 @@ library
                   Network.JsonRpc.Utils,
                   Web.Zenfolio.API,
                   Web.Zenfolio.Auth,
+                  Web.Zenfolio.Categories,
                   Web.Zenfolio.Groups,
                   Web.Zenfolio.Monad,
                   Web.Zenfolio.PhotoSets,
