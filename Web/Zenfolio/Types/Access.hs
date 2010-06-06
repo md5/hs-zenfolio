@@ -6,6 +6,7 @@ module Web.Zenfolio.Types.Access (
     AccessMaskFlag(..),
     AccessDescriptor(..),
     AccessUpdater(..),
+    Keyring(..),
     RealmID
 ) where
 
@@ -83,6 +84,9 @@ data AccessUpdater = AccessUpdater {
     auIsDerived  :: Maybe Bool
 } deriving (Eq, Show, Typeable, Data)
 
+newtype Keyring = Keyring String
+    deriving (Eq, Show, Typeable, Data)
+
 instance JSON AccessDescriptor where
     showJSON descriptor = makeObj
         [ recTypeField descriptor
@@ -140,3 +144,9 @@ instance JSON AccessUpdater where
 
     readJSON json = fail $ "Unexpected JSON AccessUpdater: " ++ show json
 
+instance JSON Keyring where
+    showJSON (Keyring ring) = JSString $ toJSString ring
+
+    readJSON (JSString s) = return $ Keyring (fromJSString s)
+
+    readJSON json = fail $ "Unexpected JSON Keyring: " ++ show json

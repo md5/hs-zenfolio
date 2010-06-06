@@ -10,10 +10,11 @@ module Web.Zenfolio.Photos (
     newUpdater
 ) where
 
+import Web.Zenfolio.Auth (updatePhotoAccess)
 import Web.Zenfolio.Monad (ZM)
 import Web.Zenfolio.RPC (zfRemote)
 import Web.Zenfolio.Types (Photo, PhotoID, PhotoRotation, PhotoUpdater(..),
-                           AccessUpdater, PhotoSetID, GroupIndex)
+                           PhotoSetID, GroupIndex)
 
 deletePhoto :: PhotoID -> ZM ()
 deletePhoto = zfRemote "DeletePhoto"
@@ -32,9 +33,6 @@ rotatePhoto = zfRemote "RotatePhoto"
 
 updatePhoto :: PhotoID -> PhotoUpdater -> ZM Photo
 updatePhoto = zfRemote "UpdatePhoto"
-
-updatePhotoAccess :: PhotoID -> AccessUpdater -> ZM ()
-updatePhotoAccess = zfRemote "UpdatePhotoAccess"
 
 newUpdater :: PhotoUpdater
 newUpdater = PhotoUpdater {

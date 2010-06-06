@@ -11,10 +11,11 @@ module Web.Zenfolio.Groups (
     newUpdater
 ) where
 
+import Web.Zenfolio.Auth (updateGroupAccess)
 import Web.Zenfolio.Monad (ZM)
 import Web.Zenfolio.RPC (zfRemote)
-import Web.Zenfolio.Types (Group, GroupID, GroupIndex, GroupShiftOrder, GroupUpdater(..),
-                           AccessUpdater, PhotoID)
+import Web.Zenfolio.Types (Group, GroupID, GroupIndex, GroupShiftOrder,
+                           GroupUpdater(..), PhotoID)
 
 createGroup :: GroupID -> GroupUpdater -> ZM Group
 createGroup = zfRemote "CreateGroup"
@@ -36,9 +37,6 @@ setGroupTitlePhoto = zfRemote "SetGroupTitlePhoto"
 
 updateGroup :: GroupID -> GroupUpdater -> ZM Group
 updateGroup = zfRemote "UpdateGroup"
-
-updateGroupAccess :: GroupID -> AccessUpdater -> ZM ()
-updateGroupAccess = zfRemote "UpdateGroupAccess"
 
 newUpdater :: GroupUpdater
 newUpdater = GroupUpdater {
