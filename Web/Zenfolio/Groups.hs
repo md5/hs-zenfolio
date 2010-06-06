@@ -4,12 +4,14 @@ module Web.Zenfolio.Groups (
     loadGroup,
     moveGroup,
     reorderGroup,
-    updateGroup
+    updateGroup,
+
+    newUpdater
 ) where
 
 import Web.Zenfolio.Monad (ZM)
 import Web.Zenfolio.RPC (zfRemote)
-import Web.Zenfolio.Types (Group, GroupID, GroupIndex, GroupUpdater)
+import Web.Zenfolio.Types (Group, GroupID, GroupIndex, GroupShiftOrder, GroupUpdater(..))
 
 createGroup :: GroupID -> GroupUpdater -> ZM Group
 createGroup = zfRemote "CreateGroup"
@@ -28,3 +30,10 @@ reorderGroup = zfRemote "ReorderGroup"
 
 updateGroup :: GroupID -> GroupUpdater -> ZM Group
 updateGroup = zfRemote "UpdateGroup"
+
+newUpdater :: GroupUpdater
+newUpdater = GroupUpdater {
+                 guTitle = Nothing,
+                 guCaption = Nothing,
+                 guCustomReference = Nothing
+             }
