@@ -11,10 +11,11 @@ import Web.Zenfolio.RPC (zfRemote)
 import Web.Zenfolio.Types (LoginName, AuthChallenge(..), Password, AuthToken)
 
 getChallenge :: LoginName -> ZM AuthChallenge
-getChallenge loginName = zfRemote "GetChallenge" loginName
+getChallenge = zfRemote "GetChallenge"
 
 authenticate :: AuthChallenge -> Password -> ZM AuthToken
-authenticate challenge password = zfRemote "Authenticate" challengeBytes roundTwoBytes
+authenticate challenge password = do
+        zfRemote "Authenticate" challengeBytes roundTwoBytes
     where saltBytes      = acPasswordSalt challenge
           challengeBytes = acChallenge challenge
           passwordBytes  = toRep $ fromString password

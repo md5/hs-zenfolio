@@ -7,7 +7,6 @@ import System.IO (hSetEcho, hFlush, stdin, stdout)
 
 import Web.Zenfolio.API
 import qualified Web.Zenfolio.Users as Users
-import qualified Web.Zenfolio.Groups as Groups
 import qualified Web.Zenfolio.PhotoSets as PhotoSets
 
 dumpProfile :: LoginName -> Password -> ZM ()
@@ -15,7 +14,7 @@ dumpProfile username password = do
     token <- login username password
     withToken token $ withDebug True $ do
         user <- Users.loadPrivateProfile
-        root <- Groups.loadGroupHierarchy username
+        root <- Users.loadGroupHierarchy username
         let (GroupElementPhotoSet firstGroup) = head $ groupElements root
         ps   <- PhotoSets.loadPhotoSet (psId firstGroup)
         liftIO $ do

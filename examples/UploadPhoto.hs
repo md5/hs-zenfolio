@@ -5,8 +5,8 @@ import System.Environment (getArgs, getProgName)
 import System.IO (hSetEcho, hFlush, stdin, stdout)
 
 import Web.Zenfolio.API
-import qualified Web.Zenfolio.Groups as Groups
 import qualified Web.Zenfolio.Photos.Upload as Upload
+import qualified Web.Zenfolio.Users as Users
 
 prompt :: String -> IO Password
 prompt message = do
@@ -17,7 +17,7 @@ prompt message = do
 
 findPhotoSet :: LoginName -> String -> ZM (Maybe PhotoSet)
 findPhotoSet username title = do
-    rootGroup <- Groups.loadGroupHierarchy username
+    rootGroup <- Users.loadGroupHierarchy username
     findPhotoSet' $ groupElements rootGroup
     where findPhotoSet' [] = return Nothing
           findPhotoSet' (GroupElementPhotoSet ps:ges) =

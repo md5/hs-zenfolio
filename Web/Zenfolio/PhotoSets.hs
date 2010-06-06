@@ -8,7 +8,7 @@ import Web.Zenfolio.RPC (zfRemote)
 import Web.Zenfolio.Types (GroupID, PhotoSet, PhotoSetID, PhotoSetType, PhotoSetUpdater)
 
 createPhotoSet :: GroupID -> PhotoSetType -> PhotoSetUpdater -> ZM PhotoSet
-createPhotoSet groupId setType updater = zfRemote "CreatePhotoSet" groupId setType updater
+createPhotoSet = zfRemote "CreatePhotoSet"
 
 loadPhotoSet :: PhotoSetID -> ZM PhotoSet
-loadPhotoSet photoSetId = zfRemote "LoadPhotoSet" photoSetId
+loadPhotoSet = zfRemote "LoadPhotoSet"
