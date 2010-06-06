@@ -6,6 +6,7 @@ module Web.Zenfolio.Groups (
     reorderGroup,
     setGroupTitlePhoto,
     updateGroup,
+    updateGroupAccess,
 
     newUpdater
 ) where
@@ -13,7 +14,7 @@ module Web.Zenfolio.Groups (
 import Web.Zenfolio.Monad (ZM)
 import Web.Zenfolio.RPC (zfRemote)
 import Web.Zenfolio.Types (Group, GroupID, GroupIndex, GroupShiftOrder, GroupUpdater(..),
-                           PhotoID)
+                           AccessUpdater, PhotoID)
 
 createGroup :: GroupID -> GroupUpdater -> ZM Group
 createGroup = zfRemote "CreateGroup"
@@ -35,6 +36,9 @@ setGroupTitlePhoto = zfRemote "SetGroupTitlePhoto"
 
 updateGroup :: GroupID -> GroupUpdater -> ZM Group
 updateGroup = zfRemote "UpdateGroup"
+
+updateGroupAccess :: GroupID -> AccessUpdater -> ZM ()
+updateGroupAccess = zfRemote "UpdateGroupAccess"
 
 newUpdater :: GroupUpdater
 newUpdater = GroupUpdater {

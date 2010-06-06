@@ -7,6 +7,7 @@ module Web.Zenfolio.PhotoSets (
     setPhotoSetTitlePhoto,
     setPhotoSetFeaturedIndex,
     updatePhotoSet,
+    updatePhotoSetAccess,
 
     newUpdater
 ) where
@@ -15,7 +16,7 @@ import Web.Zenfolio.Monad (ZM)
 import Web.Zenfolio.RPC (zfRemote)
 import Web.Zenfolio.Types (GroupID, GroupIndex,
                            PhotoSet, PhotoSetID, PhotoSetType, PhotoSetUpdater(..),
-                           PhotoID, ShiftOrder)
+                           AccessUpdater, PhotoID, ShiftOrder)
 
 createPhotoSet :: GroupID -> PhotoSetType -> PhotoSetUpdater -> ZM PhotoSet
 createPhotoSet = zfRemote "CreatePhotoSet"
@@ -40,6 +41,9 @@ setPhotoSetTitlePhoto = zfRemote "SetPhotoSetTitlePhoto"
 
 updatePhotoSet :: PhotoSetID -> PhotoSetUpdater -> ZM PhotoSet
 updatePhotoSet = zfRemote "UpdatePhotoSet"
+
+updatePhotoSetAccess :: PhotoSetID -> AccessUpdater -> ZM ()
+updatePhotoSetAccess = zfRemote "UpdatePhotoSetAccess"
 
 newUpdater :: PhotoSetUpdater
 newUpdater = PhotoSetUpdater {
