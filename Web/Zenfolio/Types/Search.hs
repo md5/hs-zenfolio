@@ -1,6 +1,7 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 
 module Web.Zenfolio.Types.Search (
+    SearchID,
     SortOrder(..),
     PhotoResult(..),
     PhotoSetResult(..)
@@ -13,6 +14,8 @@ import Text.JSON.Generic (toJSON, fromJSON)
 
 import Web.Zenfolio.Types.Base (Photo, PhotoSet)
 import Web.Zenfolio.Utils
+
+type SearchID = String
 
 data SortOrder = Date
                | Popularity

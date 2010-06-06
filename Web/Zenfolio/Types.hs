@@ -9,6 +9,7 @@ module Web.Zenfolio.Types (
     Access.AccessUpdater,
     Access.Keyring,
 
+    Search.SearchID,
     Search.SortOrder,
     Search.PhotoResult,
     Search.PhotoSetResult,

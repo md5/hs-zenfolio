@@ -16,7 +16,8 @@ import Web.Zenfolio.Auth (updatePhotoAccess)
 import Web.Zenfolio.Monad (ZM)
 import Web.Zenfolio.RPC (zfRemote)
 import Web.Zenfolio.Types (Photo, PhotoID, PhotoRotation, PhotoUpdater(..),
-                           PhotoSetID, GroupIndex, SortOrder, CategoryID, PhotoResult)
+                           PhotoSetID, GroupIndex, SortOrder, CategoryID,
+                           SearchID, PhotoResult)
 
 deletePhoto :: PhotoID -> ZM ()
 deletePhoto = zfRemote "DeletePhoto"

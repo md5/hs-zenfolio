@@ -4,6 +4,8 @@ module Web.Zenfolio.PhotoSets (
     loadPhotoSet,
     movePhotoSet,
     reorderPhotoSet,
+    searchSetByCategory,
+    searchSetByText,
     setPhotoSetTitlePhoto,
     setPhotoSetFeaturedIndex,
     updatePhotoSet,
@@ -17,7 +19,7 @@ import Web.Zenfolio.Monad (ZM)
 import Web.Zenfolio.RPC (zfRemote)
 import Web.Zenfolio.Types (GroupID, GroupIndex, PhotoSet, PhotoSetID,
                            PhotoSetType, PhotoSetUpdater(..), PhotoID,
-                           ShiftOrder)
+                           ShiftOrder, SearchID, PhotoSetResult, SortOrder, CategoryID)
 
 createPhotoSet :: GroupID -> PhotoSetType -> PhotoSetUpdater -> ZM PhotoSet
 createPhotoSet = zfRemote "CreatePhotoSet"
@@ -33,6 +35,14 @@ movePhotoSet = zfRemote "MovePhotoSet"
 
 reorderPhotoSet :: PhotoSetID -> ShiftOrder -> ZM ()
 reorderPhotoSet = zfRemote "ReorderPhotoSet"
+
+searchSetByCategory :: SearchID -> PhotoSetType -> SortOrder -> CategoryID
+                    -> Int -> Int -> ZM PhotoSetResult
+searchSetByCategory = zfRemote "SearchSetByCategory"
+
+searchSetByText :: SearchID -> PhotoSetType -> SortOrder -> String
+                -> Int -> Int -> ZM PhotoSetResult
+searchSetByText = zfRemote "SearchSetByText"
 
 setPhotoSetFeaturedIndex :: PhotoSetID -> GroupIndex -> ZM ()
 setPhotoSetFeaturedIndex = zfRemote "SetPhotoSetFeaturedIndex"
