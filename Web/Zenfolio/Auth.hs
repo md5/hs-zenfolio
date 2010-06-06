@@ -2,6 +2,7 @@ module Web.Zenfolio.Auth (
     authenticate,
     authenticatePlain,
     getChallenge,
+    getDownloadOriginalKey,
     keyringAddKeyPlain,
     loadAccessRealm,
     updateGroupAccess,
@@ -18,10 +19,7 @@ import Web.Zenfolio.Monad (ZM)
 import Web.Zenfolio.RPC (zfRemote, zfRemoteSsl)
 import Web.Zenfolio.Types (LoginName, AuthChallenge(..), Password, AuthToken, RealmID,
                            AccessDescriptor, PhotoID, AccessUpdater, GroupID, PhotoSetID)
-import Web.Zenfolio.Types.Access (Keyring(..))
-
-getChallenge :: LoginName -> ZM AuthChallenge
-getChallenge = zfRemote "GetChallenge"
+import Web.Zenfolio.Types.Access (DownloadKey, Keyring(..))
 
 authenticate :: AuthChallenge -> Password -> ZM AuthToken
 authenticate challenge password = do
@@ -34,6 +32,12 @@ authenticate challenge password = do
 
 authenticatePlain :: LoginName -> Password -> ZM AuthToken
 authenticatePlain = zfRemoteSsl "AuthenticatePlain"
+
+getChallenge :: LoginName -> ZM AuthChallenge
+getChallenge = zfRemote "GetChallenge"
+
+getDownloadOriginalKey :: [PhotoID] -> Password -> ZM DownloadKey
+getDownloadOriginalKey = zfRemote "GetDownloadOriginalKey"
 
 keyringAddKeyPlain :: Keyring -> RealmID -> Password -> ZM Keyring
 keyringAddKeyPlain = zfRemoteSsl "KeyringAddKeyPlain"

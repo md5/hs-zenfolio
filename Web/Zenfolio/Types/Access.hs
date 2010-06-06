@@ -6,6 +6,7 @@ module Web.Zenfolio.Types.Access (
     AccessMaskFlag(..),
     AccessDescriptor(..),
     AccessUpdater(..),
+    DownloadKey(..),
     Keyring(..),
     RealmID
 ) where
@@ -84,6 +85,9 @@ data AccessUpdater = AccessUpdater {
     auIsDerived  :: Maybe Bool
 } deriving (Eq, Show, Typeable, Data)
 
+newtype DownloadKey = DownloadKey String
+    deriving (Eq, Show, Typeable, Data)
+
 newtype Keyring = Keyring String
     deriving (Eq, Show, Typeable, Data)
 
@@ -143,6 +147,13 @@ instance JSON AccessUpdater where
                       <*> mField "IsDerived" obj
 
     readJSON json = fail $ "Unexpected JSON AccessUpdater: " ++ show json
+
+instance JSON DownloadKey where
+    showJSON (DownloadKey ring) = JSString $ toJSString ring
+
+    readJSON (JSString s) = return $ DownloadKey (fromJSString s)
+
+    readJSON json = fail $ "Unexpected JSON DownloadKey: " ++ show json
 
 instance JSON Keyring where
     showJSON (Keyring ring) = JSString $ toJSString ring

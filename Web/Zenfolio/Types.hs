@@ -7,6 +7,7 @@ module Web.Zenfolio.Types (
     Access.AccessType,
     Access.AccessDescriptor,
     Access.AccessUpdater,
+    Access.DownloadKey,
     Access.Keyring,
 
     Search.SearchID,
