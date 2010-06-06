@@ -3,6 +3,7 @@ module Web.Zenfolio.Groups (
     deleteGroup,
     loadGroup,
     moveGroup,
+    reorderGroup,
     updateGroup
 ) where
 
@@ -21,6 +22,9 @@ loadGroup = zfRemote "LoadGroup"
 
 moveGroup :: GroupID -> GroupID -> GroupIndex -> ZM ()
 moveGroup = zfRemote "MoveGroup"
+
+reorderGroup :: GroupID -> GroupShiftOrder -> ZM ()
+reorderGroup = zfRemote "ReorderGroup"
 
 updateGroup :: GroupID -> GroupUpdater -> ZM Group
 updateGroup = zfRemote "UpdateGroup"
