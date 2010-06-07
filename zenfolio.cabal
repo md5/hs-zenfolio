@@ -95,3 +95,8 @@ executable getCategories {
   main-is:              examples/GetCategories.hs
   ghc-options:          -Wall
 }
+
+executable createCollection {
+  main-is:              examples/CreateCollection.hs
+  ghc-options:          -Wall
+}
