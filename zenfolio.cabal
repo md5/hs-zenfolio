@@ -100,3 +100,8 @@ executable createCollection {
   main-is:              examples/CreateCollection.hs
   ghc-options:          -Wall
 }
+
+executable collectionAddPhoto {
+  main-is:              examples/CollectionAddPhoto.hs
+  ghc-options:          -Wall
+}

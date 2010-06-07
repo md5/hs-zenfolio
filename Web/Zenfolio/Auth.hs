@@ -17,7 +17,7 @@ import qualified Data.Digest.SHA256 as SHA256 (hash)
 import Data.String.UTF8 (fromString, toRep)
 import Web.Zenfolio.Monad (ZM)
 import Web.Zenfolio.RPC (zfRemote, zfRemoteSsl)
-import Web.Zenfolio.Types (LoginName, AuthChallenge(..), Password, AuthToken, RealmID,
+import Web.Zenfolio.Types (Void, LoginName, AuthChallenge(..), Password, AuthToken, RealmID,
                            AccessDescriptor, PhotoID, AccessUpdater, GroupID, PhotoSetID)
 import Web.Zenfolio.Types.Access (DownloadKey, Keyring(..))
 
@@ -45,13 +45,13 @@ keyringAddKeyPlain = zfRemoteSsl "KeyringAddKeyPlain"
 loadAccessRealm :: RealmID -> ZM AccessDescriptor
 loadAccessRealm = zfRemote "LoadAccessRealm"
 
-updateGroupAccess :: GroupID -> AccessUpdater -> ZM ()
+updateGroupAccess :: GroupID -> AccessUpdater -> ZM Void
 updateGroupAccess = zfRemote "UpdateGroupAccess"
 
-updatePhotoAccess :: PhotoID -> AccessUpdater -> ZM ()
+updatePhotoAccess :: PhotoID -> AccessUpdater -> ZM Void
 updatePhotoAccess = zfRemote "UpdatePhotoAccess"
 
-updatePhotoSetAccess :: PhotoSetID -> AccessUpdater -> ZM ()
+updatePhotoSetAccess :: PhotoSetID -> AccessUpdater -> ZM Void
 updatePhotoSetAccess = zfRemote "UpdatePhotoSetAccess"
 
 -- Helper functions

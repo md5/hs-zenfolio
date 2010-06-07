@@ -5,10 +5,10 @@ module Web.Zenfolio.Collections (
 
 import Web.Zenfolio.Monad (ZM)
 import Web.Zenfolio.RPC (zfRemote)
-import Web.Zenfolio.Types (PhotoID, PhotoSetID)
+import Web.Zenfolio.Types (Void, PhotoID, PhotoSetID)
 
-collectionAddPhoto :: PhotoSetID -> PhotoID -> ZM ()
+collectionAddPhoto :: PhotoSetID -> PhotoID -> ZM Void
 collectionAddPhoto = zfRemote "CollectionAddPhoto"
 
-collectionRemovePhoto :: PhotoSetID -> PhotoID -> ZM ()
+collectionRemovePhoto :: PhotoSetID -> PhotoID -> ZM Void
 collectionRemovePhoto = zfRemote "CollectionRemovePhoto"

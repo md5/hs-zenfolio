@@ -11,8 +11,9 @@ module Network.JsonRpc (
 
     H.Header(..),
     H.HeaderName(..),
-    module Text.JSON,
-    module Text.JSON.Types
+
+    JSON(..),
+    JSValue
 ) where
 
 import Control.Monad.Reader
@@ -28,17 +29,20 @@ import qualified Network.HTTP as H
 import Network.Stream
 import Network.URI
 import Text.JSON (JSON(..))
-import Text.JSON.Types (JSValue)
+import Text.JSON.Types (JSValue(..))
 
-import Network.JsonRpc.Error
 import Network.JsonRpc.Monad
 import Network.JsonRpc.Request
 import Network.JsonRpc.Response
 
 handleResponse :: Monad m => Response -> m JSValue
-handleResponse (Rsp (Just v) _ _)              = return v
-handleResponse (Rsp _ (Just (Err msg code)) _) = fail ("Error " ++ show msg ++ ": " ++ show code)
-handleResponse (Rsp _ _ _)                     = fail "Unknown error"
+handleResponse rsp = case rsp of
+    Rsp (Just v) Nothing _    -> return v
+    Rsp Nothing Nothing _     -> return JSNull
+
+    Rsp Nothing (Just err) _  -> fail $ "Error " ++ show err
+    Rsp (Just v) (Just err) _ -> fail $ "Received both result and error: " ++
+                                        "result=" ++ show v ++ ",error=" ++ show err
 
 type MethodName = String
 
@@ -87,7 +91,7 @@ ioRemote_ :: JSON a =>
           -> (RpcEnv -> [JSValue] -> Err IO JSValue)
           -> RpcEnv
           -> IO a
-ioRemote_ h f headers = handleError (fail . h) $ f headers [] >>= jsonErrorToErr . readJSON
+ioRemote_ h f env = handleError (fail . h) $ f env [] >>= jsonErrorToErr . readJSON
 
 instance JSON a => Remote (IO a) where
     remote_ h f = ioRemote_ h f rpcEnv

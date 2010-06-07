@@ -1,6 +1,8 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 
 module Web.Zenfolio.Types.Base (
+    Void,
+
     LoginName,
     Password,
     GroupID,
@@ -70,6 +72,9 @@ data AuthChallenge = AuthChallenge {
 } deriving (Eq, Show)
 
 type AuthToken = String
+
+data Void = Void
+    deriving (Eq, Ord, Enum, Bounded, Read, Show, Typeable, Data)
 
 data ErrorCode = E__ACCOUNTLOCKED
                | E_CONNECTIONISNOTSECURE
@@ -264,6 +269,15 @@ data PhotoSet = PhotoSet {
 --------------------------
 -- JSON bindings
 --------------------------
+
+instance JSON Void where
+    showJSON _ = error $ "Void cannot be serialized to JSON"
+
+    readJSON JSNull = return Void
+
+    readJSON (JSArray []) = return Void
+
+    readJSON json = fail $ "Unexpected JSON for Void: " ++ show json
 
 instance JSON AuthChallenge where
     showJSON ac = makeObj
